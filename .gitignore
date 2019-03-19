@@ -12,6 +12,7 @@ tmp/
 misc/
 screenlog.*
 bin/scripts/metaphlan2/databases/
+.ipynb_checkpoints/
 
 # hg
 **/.hg/

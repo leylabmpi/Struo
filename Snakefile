@@ -47,6 +47,7 @@ config['tmp_dir'] = os.path.join(config['pipeline']['temp_folder'],
 snake_dir = config['pipeline']['snakemake_folder']
 include: snake_dir + 'bin/dirs'
 include: snake_dir + 'bin/kraken2/Snakefile'
+include: snake_dir + 'bin/bracken/Snakefile'
 include: snake_dir + 'bin/humann2/Snakefile'
 
 ## local rules
@@ -54,29 +55,39 @@ localrules: all
 
 def all_which_input(wildcards):
     input_files = []
-    if not config['params']['kraken2'].startswith('Skip'):
+    # kraken2
+    if not config['databases']['kraken2'].startswith('Skip'):
         input_files.append(kraken2_dir + 'hash.k2d')
+        input_files.append(kraken2_dir + 'opts.k2d')
+        input_files.append(kraken2_dir + 'taxo.k2d')
+        input_files.append(kraken2_dir + 'seqid2taxid.map')
+
+    # bracken
+    if not config['databases']['bracken'].startswith('Skip'):
+    	x = expand(kraken2_dir + 'database{read_len}mers.kraken',
+	           read_len = config['params']['bracken_build_read_lens'])
+        input_files += x
+
+    # humann2
+    if not config['databases']['humann2_bowtie2'].startswith('Skip'):
+        input_files.append(humann2_dir + 'bowtie2_build.done')
+    if not config['databases']['humann2_diamond'].startswith('Skip'):	
+        input_files.append(humann2_dir + 'diamond_makedb.done')
+    
+    # ret
     return input_files
 
 rule all:
     input:
-        # kraken
-        kraken2_dir + 'hash.k2d',
-        kraken2_dir + 'opts.k2d',
-        kraken2_dir + 'seqid2taxid.map',
-        kraken2_dir + 'taxo.k2d',
-        # humann2
-        humann2_dir + 'bowtie2_build.done',
-        humann2_dir + 'diamond_makedb.done'
-
+        all_which_input
 
 # notifications (only first & last N lines)
-# onsuccess:
-#     print("Workflow finished, no error")
-#     cmd = "(head -n 1000 {log} && tail -n 1000 {log}) | fold -w 900 | mail -s 'LLMGP-DB finished successfully' " + config['pipeline']['email']
-#     shell(cmd)
+onsuccess:
+    print("Workflow finished, no error")
+    cmd = "(head -n 1000 {log} && tail -n 1000 {log}) | fold -w 900 | mail -s 'LLMGP-DB finished successfully' " + config['pipeline']['email']
+    shell(cmd)
 
-# onerror:
-#     print("An error occurred")
-#     cmd = "(head -n 1000 {log} && tail -n 1000 {log}) | fold -w 900 | mail -s 'LLMGP-DB => error occurred' " + config['pipeline']['email']
-#     shell(cmd)
+onerror:
+    print("An error occurred")
+    cmd = "(head -n 1000 {log} && tail -n 1000 {log}) | fold -w 900 | mail -s 'LLMGP-DB => error occurred' " + config['pipeline']['email']
+    shell(cmd)

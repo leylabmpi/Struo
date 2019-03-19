@@ -10,10 +10,21 @@ taxonomy_col: 'ncbi_taxonomy'
 # output location
 output_dir: tests/output_n3/
 
+#-- databases to create --#
+# Replace "Create" with "Skip" to skip creation of any of these
+# Note that braken relies on the kraken2 database
+databases:
+  kraken2: Create
+  bracken: Create
+  humann2_bowtie2: Create
+  humann2_diamond: Create
+
 #-- software parameters --#
-# Use "Skip" to skip steps.
 params:
-  kraken2: Skip
+  bracken_build_kmer: 35
+  bracken_build_read_lens:
+    - 100
+    - 150
   prodigal: ""
   diamond_db: /ebio/abt3_projects/databases_no-backup/humann2/uniref50/uniref50_annotated.1.1.dmnd
   diamond: --evalue 1e-5 --sensitive

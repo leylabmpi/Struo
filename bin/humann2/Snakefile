@@ -133,7 +133,7 @@ rule cat_genes_AA:
         cat {input.faa} > {output.faa} 2> {log}
         """
 
-rule bowtie2_build:
+rule humann2_bowtie2_build:
     """
     Running bowtie2 build on combined, annotated genes 
     """
@@ -160,7 +160,7 @@ rule bowtie2_build:
           {input} $PREF 2> {log} 1>&2        
         """    
 
-rule diamond_makedb:
+rule humann2_diamond_makedb:
     """
     Running diamond makedb on combined, annotated genes 
     """

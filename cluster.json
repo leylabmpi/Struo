@@ -6,6 +6,24 @@
         "output"    : "{rule}.{wildcards}.out",
         "error"     : "{rule}.{wildcards}.err"
     },
+    "kraken2_add_taxID" : {
+        "time" : "{resources.time}",
+        "mem" : "{resources.mem_gb_pt}"
+    },
+    "kraken2_build_add" : {
+        "time" : "{resources.time}",
+        "mem" : "{resources.mem_gb_pt}"
+    },
+    "kraken2_build" : {
+        "time" : "{resources.time}",
+        "n" : 30,
+        "mem" : "{resources.mem_gb_pt}"
+    },
+    "bracken_build" : {
+        "time" : "{resources.time}",
+        "n" : 24,
+        "mem" : "{resources.mem_gb_pt}"
+    },
     "prodigal" : {
         "time" : "{resources.time}",
         "mem" : "{resources.mem_gb_pt}"
@@ -27,12 +45,12 @@
         "time" : "{resources.time}",
         "mem" : "{resources.mem_gb_pt}"
     },
-    "bowtie2_build" : {
+    "humann2_bowtie2_build" : {
         "time" : "{resources.time}",
-        "n" : 24,
+        "n" : 30,
         "mem" : "{resources.mem_gb_pt}"
     },
-    "diamond_makedb" : {
+    "humann2_diamond_makedb" : {
         "time" : "{resources.time}",
         "mem" : "{resources.mem_gb_pt}"
     }

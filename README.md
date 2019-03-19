@@ -56,61 +56,9 @@ For general instuctions on setting up and running the Ley Lab pipelines, see the
 * Set the paths to the new, custom databases in the `config_custom-db.yaml` file in the `LLMGP` pipeline.
 
 
-
-## Algorithm
-
-* Pre-Input
-  * gtdb metadata
-    * bac: https://data.ace.uq.edu.au/public/gtdb/release86/bac_metadata_r86.tsv
-    * arc: https://data.ace.uq.edu.au/public/gtdb/release86/arc_metadata_r86.tsv
-  * filter metadata
-    * read via data.table::fread
-    * filter:
-      * gtdb_representative == 't'
-      * cols:
-        * ncbi_organism_name
-        * ncbi_genbank_assembly_accession
-	* scaffold_count
-	* contig_count
-	* gc_percentage
-	* genome_size
-	* checkm_completeness
-	* checkm_contamination
-	* checkm_strain_heterogeneity
-	* ncbi_assembly_level
-	* ncbi_refseq_category
-	* ncbi_species_taxid
-	* ncbi_taxonomy
-	* gtdb_taxonomy
-	* mimag_high_quality
-  * use ncbi-genome-download to download genomes
-    * `ncbi-genome-download --assembly-accessions {file_of_accs} "archaea,bacteria"`
-      * `-p {threads} -r {retries}`
-* Input
-  * metadata table:
-    * genomeID
-    * path to genome assembly fasta
-    * ncbi_species_taxid
-* Kraken db
-  * download NCBI taxonomy db
-    * make a custom GTDB taxonmoy db??
-  * Add taxID to seq names & combine all genomes
-  * `kraken2-build --add-to-library`
-    * can it be batched?
-* Bracken db
-  * build based off of Kraken db
-* humann2 db
-  * gene call for all genomes
-    * `Prodigal`
-  * diamond mapping vs UniRef
-  
-
 # Pipeline overview
 
 Example run on 2 metagenomes. 
 
 ![DAG](./llmgp-db_dag.png)
-
-
-
 

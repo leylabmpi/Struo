@@ -47,6 +47,15 @@ Ley Lab Metagenome Profiler (LLMGP) Database Maker
       * `s__unclassified`  (if no species)
     * This is needed for humann2
     
+## Running the pipeline
+
+For general instuctions on setting up and running the Ley Lab pipelines, see the [ll_pipeline_docs](https://gitlab.tuebingen.mpg.de/leylabmpi/pipelines/ll_pipeline_docs)
+
+## Using the resulting databases
+
+* Set the paths to the new, custom databases in the `config_custom-db.yaml` file in the `LLMGP` pipeline.
+
+
 
 ## Algorithm
 
@@ -102,10 +111,6 @@ Example run on 2 metagenomes.
 
 ![DAG](./llmgp-db_dag.png)
 
-
-# Instructions
-
-For general instuctions on setting up and running the Ley Lab pipelines, see the [ll_pipeline_docs](https://gitlab.tuebingen.mpg.de/leylabmpi/pipelines/ll_pipeline_docs)
 
 
 

@@ -1,16 +1,3 @@
-# rule db_download:
-#     params:
-#         url = config['genomes_url']
-#     output:
-#         config['tmp_dir'] + 'database.tar.gz'
-#     log:
-#         log_dir + 'db_download.log'
-#     shell:
-#         """
-#         OUTDIR=`dirname {output}`
-#         wget {params.url} -o {output} 2> {log}
-#         """
-
 localrules: kraken_build_download_tax
 
 rule kraken2_build_download_tax:
@@ -18,14 +5,14 @@ rule kraken2_build_download_tax:
     Downloading NCBI taxonomy
     """
     output:
-        est = ancient(kraken2_dir + 'taxonomy/nucl_est.accession2taxid'),
-        gb = ancient(kraken2_dir + 'taxonomy/nucl_gb.accession2taxid'),
-        gss = ancient(kraken2_dir + 'taxonomy/nucl_gss.accession2taxid'),
-        wgs = ancient(kraken2_dir + 'taxonomy/nucl_wgs.accession2taxid'),
-        dump = ancient(kraken2_dir + 'taxonomy/taxdump.tar.gz'),
-        nodes = ancient(kraken2_dir + 'taxonomy/nodes.dmp'),
-        names = ancient(kraken2_dir + 'taxonomy/names.dmp'),
-        merged = ancient(kraken2_dir + 'taxonomy/merged.dmp')
+        est = kraken2_dir + 'taxonomy/nucl_est.accession2taxid',
+        gb = kraken2_dir + 'taxonomy/nucl_gb.accession2taxid',
+        gss = kraken2_dir + 'taxonomy/nucl_gss.accession2taxid',
+        wgs = kraken2_dir + 'taxonomy/nucl_wgs.accession2taxid',
+        dump = kraken2_dir + 'taxonomy/taxdump.tar.gz',
+        nodes = kraken2_dir + 'taxonomy/nodes.dmp',
+        names = kraken2_dir + 'taxonomy/names.dmp',
+        merged = kraken2_dir + 'taxonomy/merged.dmp'
     conda:
         '../envs/kraken2.yaml'
     log:

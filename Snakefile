@@ -46,7 +46,7 @@ config['tmp_dir'] = os.path.join(config['pipeline']['temp_folder'],
 ## including modular snakefiles
 snake_dir = config['pipeline']['snakemake_folder']
 include: snake_dir + 'bin/dirs'
-#include: snake_dir + 'bin/kraken2/Snakefile'
+include: snake_dir + 'bin/kraken2/Snakefile'
 include: snake_dir + 'bin/humann2/Snakefile'
 
 ## local rules
@@ -60,13 +60,14 @@ def all_which_input(wildcards):
 
 rule all:
     input:
+        # kraken
+        kraken2_dir + 'hash.k2d',
+        kraken2_dir + 'opts.k2d',
+        kraken2_dir + 'seqid2taxid.map',
+        kraken2_dir + 'taxo.k2d',
+        # humann2
         humann2_dir + 'bowtie2_build.done',
         humann2_dir + 'diamond_makedb.done'
-
-        # hash = kraken2_dir + 'hash.k2d',
-	# opts = kraken2_dir + 'opts.k2d',
-	# map  = kraken2_dir + 'seqid2taxid.map',
-	# taxo = kraken2_dir + 'taxo.k2d'
 
 
 # notifications (only first & last N lines)

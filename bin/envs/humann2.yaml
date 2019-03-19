@@ -1,0 +1,6 @@
+channels: !!python/tuple
+- bioconda
+dependencies:
+- pigz
+- bioconda::prodigal
+- bioconda::diamond=0.8.36

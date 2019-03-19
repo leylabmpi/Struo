@@ -1,0 +1,186 @@
+rule prodigal:
+    """
+    Running prodigal on each genome
+    """
+    input:
+        fasta = lambda wildcards: config['samples'].loc[wildcards.sample, config['fasta_file_path_col']]
+    output:
+        fna = temp(config['tmp_dir'] + 'prodigal/{sample}.fna'),
+        faa = temp(config['tmp_dir'] + 'prodigal/{sample}.faa'),
+        gbk = temp(config['tmp_dir'] + 'prodigal/{sample}.gbk')
+    params:
+        params = config['params']['prodigal']
+    resources:
+        time = lambda wildcards, attempt: attempt ** 2 * 59,
+        mem_gb_pt = lambda wildcards, attempt: attempt * 2 * 8
+    conda:
+        '../envs/humann2.yaml'
+    log:
+        log_dir + 'prodigal/{sample}.log'
+    benchmark:
+        benchmark_dir + 'prodigal/{sample}.txt'
+    shell:
+        """
+        gunzip -c {input.fasta} | \
+          prodigal {params.params} \
+          -o {output.gbk} -d {output.fna} -a {output.faa} \
+          2>&1 > {log}
+        """
+
+rule diamond:
+    """
+    Annotating genes via diamond search of UniRef db
+    """
+    input:
+        faa = config['tmp_dir'] + 'prodigal/{sample}.faa',
+	dmnd_db = config['params']['diamond_db']
+    output:
+        hits = temp(config['tmp_dir'] + 'diamond/{sample}_hits.txt')
+    params:
+        params = config['params']['diamond'],
+        tmp_dir = config['tmp_dir']
+    threads:
+        8
+    resources:
+        time = lambda wildcards, attempt: attempt * 2 * 60 * 12,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 2
+    conda:
+        '../envs/humann2.yaml'
+    log:
+        log_dir + 'annotate_genes/{sample}.log'
+    benchmark:
+        benchmark_dir + 'annotate_genes/{sample}.txt'
+    shell:
+        """
+        diamond blastp {params.params} \
+           -q {input.faa} -d {input.dmnd_db} -o {output.hits} \
+           --tmpdir {params.tmp_dir} --threads {threads} \
+           --outfmt 6 qseqid sseqid pident length qstart qend qlen sstart send slen evalue \
+           2>&1 > {log}
+        """
+
+rule annotate_genes:
+    """
+    Annotating genes via diamond search of UniRef db
+    """
+    input:
+        hits = config['tmp_dir'] + 'diamond/{sample}_hits.txt',
+        fna = config['tmp_dir'] + 'prodigal/{sample}.fna',
+        faa = config['tmp_dir'] + 'prodigal/{sample}.faa',
+    output:
+        fna = temp(config['tmp_dir'] + 'prodigal/{sample}_annot.fna'),
+        faa = temp(config['tmp_dir'] + 'prodigal/{sample}_annot.faa')
+    params:
+        tax = lambda wildcards: config['samples'].loc[wildcards.sample, config['taxonomy_col']],
+        exe = config['pipeline']['script_folder'] + 'annotate_genes.py',
+	prefix = config['tmp_dir'] + 'prodigal/{sample}'
+    resources:
+        time = lambda wildcards, attempt: attempt * 2 * 60 * 12,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
+    conda:
+        '../envs/humann2.yaml'
+    log:
+        log_dir + 'annotate_genes/{sample}.log'
+    benchmark:
+        benchmark_dir + 'annotate_genes/{sample}.txt'
+    shell:
+        """
+        {params.exe} --prefix {params.prefix} \
+           --columns qseqid,sseqid,pident,length,qstart,qend,qlen,sstart,send,slen,evalue \
+           {input.hits} {input.fna} {input.faa} "{params.tax}" \
+           2>&1 > {log}
+        """
+
+rule cat_genes_nuc:
+    """
+    Combining genes
+    """
+    input:
+        fna = expand(config['tmp_dir'] + 'prodigal/{sample}_annot.fna',
+	             sample = config['samples_unique'])
+    output:
+        fna = humann2_dir + 'all_genes.fna'
+    resources:
+        time = lambda wildcards, attempt: attempt ** 2 * 59,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 4
+    log:
+        log_dir + 'cat_genes_nuc/all.log'
+    benchmark:
+        benchmark_dir + 'cat_genes_nuc/all.txt'
+    shell:
+        """
+        cat {input.fna} > {output.fna} 2> {log}
+        """
+
+rule cat_genes_AA:
+    """
+    Combining genes
+    """
+    input:
+        faa = expand(config['tmp_dir'] + 'prodigal/{sample}_annot.faa',
+	             sample = config['samples_unique'])
+    output:
+        faa = humann2_dir + 'all_genes.faa'
+    resources:
+        time = lambda wildcards, attempt: attempt ** 2 * 59,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 4
+    log:
+        log_dir + 'cat_genes_AA/all.log'
+    benchmark:
+        benchmark_dir + 'cat_genes_AA/all.txt'
+    shell:
+        """
+        cat {input.faa} > {output.faa} 2> {log}
+        """
+
+rule bowtie2_build:
+    """
+    Running bowtie2 build on combined, annotated genes 
+    """
+    input:
+        humann2_dir + 'all_genes.fna'
+    output:
+        touch(humann2_dir + 'bowtie2_build.done')
+    conda:
+        '../envs/humann2.yaml'
+    threads:
+        24
+    resources:
+        time = lambda wildcards, attempt: attempt ** 2 * 59,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3
+    log:
+        log_dir + 'bowtie2_build/all.log'
+    benchmark:
+        log_dir + 'bowtie2_build/all.txt'
+    shell:
+        """
+        PREF=`echo {input} | perl -pe 's/\.[^.]+$//'`
+
+        bowtie2-build --threads {threads} \
+          {input} $PREF 2> {log} 1>&2        
+        """    
+
+rule diamond_makedb:
+    """
+    Running diamond makedb on combined, annotated genes 
+    """
+    input:
+        humann2_dir + 'all_genes.faa'
+    output:
+        touch(humann2_dir + 'diamond_makedb.done')
+    params:
+        prefix = humann2_dir + 'all_genes'        
+    conda:
+        '../envs/humann2.yaml'
+    resources:
+        time = lambda wildcards, attempt: attempt ** 2 * 59,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 12
+    log:
+        log_dir + 'diamond_makedb/all.log'
+    benchmark:
+        log_dir + 'diamond_makedb/all.txt'
+    shell:
+        """
+        diamond makedb --in {input} -d {params.prefix} 2>&1 > {log}
+        """    
+

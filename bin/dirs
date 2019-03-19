@@ -1,0 +1,10 @@
+import os
+
+kraken2_dir = os.path.join(config['output_dir'], 'kraken2/')
+bracken_dir = os.path.join(config['output_dir'], 'bracken/')
+humann2_dir = os.path.join(config['output_dir'], 'humann2/')
+
+
+log_dir = os.path.join(config['output_dir'], 'logs/')
+benchmark_dir = os.path.join(config['output_dir'], 'benchmarks/')
+scripts_dir = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'scripts/')

@@ -1,0 +1,25 @@
+#-- I/O --#
+# file listing samples and associated data
+samples_file: tests/samples/samples_n3.txt
+## column names in table
+samples_col: 'ncbi_organism_name'
+fasta_file_path_col: 'fasta_file_path'
+taxID_col: 'ncbi_species_taxid'
+taxonomy_col: 'ncbi_taxonomy'
+
+# output location
+output_dir: tests/output_n3/
+
+#-- software parameters --#
+# Use "Skip" to skip steps.
+params:
+  kraken2: Skip
+  prodigal: ""
+  diamond_db: /ebio/abt3_projects/databases_no-backup/humann2/uniref50/uniref50_annotated.1.1.dmnd
+  diamond: --evalue 1e-5 --sensitive
+
+#-- snakemake pipeline --#
+pipeline:
+  snakemake_folder: ./
+  script_folder: ./bin/scripts/
+  temp_folder: /tmp/global2/        # your username will be added automatically to this path

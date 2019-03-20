@@ -27,11 +27,14 @@ config['samples'] = config['samples'].set_index(config['samples'][config['sample
 config['samples_unique'] = config['samples'][config['samples_col']].unique().tolist()
 
 ### check that files exist
+rowID = 0
 for index,row in config['samples'].iterrows():
+    rowID += 1
     file_cols = [config['fasta_file_path_col']]
     for f in file_cols:        
-    	if not os.path.isfile(row[f]):
-       	   raise ValueError('Cannot file file: "{}"'.format(row[f]))
+    	if not os.path.isfile(str(row[f])):
+           msg = 'Samples table (Row {}): Cannot find file: {}'
+       	   raise ValueError(msg.format(rowID, row[f]))
 
 ## temp_folder
 config['pipeline']['username'] = getpass.getuser()

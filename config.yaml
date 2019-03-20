@@ -1,6 +1,6 @@
 #-- I/O --#
 # file listing samples and associated data
-samples_file: tests/samples/samples_n3.txt
+samples_file: tests/samples/samples_n100.txt
 ## column names in table
 samples_col: 'ncbi_organism_name'
 fasta_file_path_col: 'fasta_file_path'
@@ -8,7 +8,7 @@ taxID_col: 'ncbi_species_taxid'
 taxonomy_col: 'ncbi_taxonomy'
 
 # output location
-output_dir: tests/output_n3/
+output_dir: tests/output_n100/
 
 #-- databases to create --#
 # Replace "Create" with "Skip" to skip creation of any of these

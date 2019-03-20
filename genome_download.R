@@ -73,8 +73,7 @@ write(sprintf('Number of fasta files found: %s', n_files), stderr())
 write('Adding file paths to the input table', stderr())
 fasta_files = data.frame(accession = gsub('.+/', '', fasta_files),
                          fasta_file_path = fasta_files)
-fasta_files$accession = gsub('_genomic\\.fna\\.gz', '', fasta_files$accession)
-fasta_files$accession = gsub('_ASM[0-9]+v[0-9]+', '', fasta_files$accession)
+fasta_files$accession = gsub('(GCA_[0-9]+\\.[0-9]+)_.+', '\\1', fasta_files$accession)
 df = left_join(df, fasta_files, by=setNames('accession', col))
 
 # writing table

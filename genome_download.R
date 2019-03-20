@@ -21,6 +21,8 @@ parser$add_argument("-d", "--database", type='character', default='genbank',
 			   help="database to download (-s flag for ncbi-genome-download) [default: %(default)s]")
 parser$add_argument("-x", "--params", type='character', default='"archaea,bacteria"',
 			   help="Filtering parameters for ncbi-genome-download [default: %(default)s]")
+parser$add_argument("-f", "--filter", action="store_true", default=FALSE,
+			   help="Check for 'fasta_file_path' and just download any accessions lacking values [default: %(default)s]")
 parser$add_argument("-v", "--verbose", action="store_true", default=TRUE,
 			   help="Print extra output [default: %(default)s]")
 parser$add_argument("-q", "--quietly", action="store_false",
@@ -40,9 +42,23 @@ x = unlist(args['acc_table'])[1]
 write(sprintf('Reading table: %s', x), stderr())
 df = read.delim(x, sep='\t')
 
-# filtering table
+# fitlering table
+## checking for "fasta_file_path" column
+filter_bool = unlist(args['filter'])[1]
+if(filter_bool == TRUE){
+    write('Filtering to just NAs in fasta_file_path column', stderr())
+    if('fasta_file_path' %in% colnames(df)){
+	df_complete = filter(df, !(is.na(fasta_file_path) | fasta_file_path == ''))
+        df = filter(df, is.na(fasta_file_path) | fasta_file_path == '')
+    } else {
+        stop('Cannot find column: "fasta_file_path"')
+    }
+}
+
+## Filtering based on user params & getting accessions
 col = unlist(args['column'])[1]
-df_acc = df[df[,col] != 'none',col]
+df = df[df[,col] != 'none',]
+df_acc = df[,col]
 df_acc = as.data.frame(df_acc)
 
 # creating temp file of accessions
@@ -75,6 +91,9 @@ fasta_files = data.frame(accession = gsub('.+/', '', fasta_files),
                          fasta_file_path = fasta_files)
 fasta_files$accession = gsub('(GCA_[0-9]+\\.[0-9]+)_.+', '\\1', fasta_files$accession)
 df = left_join(df, fasta_files, by=setNames('accession', col))
+
+# recombining tables (if --filter)
+df = rbind(df_complete, df)
 
 # writing table
 write.table(df, file=stdout(), sep='\t', row.names=FALSE, quote=FALSE)

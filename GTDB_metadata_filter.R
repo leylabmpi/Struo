@@ -14,7 +14,7 @@ parser$add_argument("-o", "--output", type='character', default='metadata.tsv',
 			   help="Output file name [default: %(default)s]")
 parser$add_argument("-c", "--columns", type='character', default='ncbi_organism_name,ncbi_genbank_assembly_accession,scaffold_count,contig_count,gc_percentage,genome_size,checkm_completeness,checkm_contamination,checkm_strain_heterogeneity,ncbi_assembly_level,ncbi_refseq_category,ncbi_species_taxid,ncbi_taxonomy,gtdb_taxonomy,mimag_high_quality',
 			   help="Table columns to keep [default: %(default)s]")
-parser$add_argument("-f", "--filter", type='character', default='gtdb_representative == "t" & checkm_completeness >= 70 & checkm_contamination < 5',
+parser$add_argument("-f", "--filter", type='character', default='gtdb_representative == "t" & checkm_completeness >= 50 & checkm_contamination < 5',
 			   help="Table columns to keep [default: %(default)s]")
 parser$add_argument("-v", "--verbose", action="store_true", default=TRUE,
 			   help="Print extra output [default: %(default)s]")

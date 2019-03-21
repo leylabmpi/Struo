@@ -23,6 +23,8 @@ parser$add_argument("-x", "--params", type='character', default='"archaea,bacter
 			   help="Filtering parameters for ncbi-genome-download [default: %(default)s]")
 parser$add_argument("-f", "--filter", action="store_true", default=FALSE,
 			   help="Check for 'fasta_file_path' and just download any accessions lacking values [default: %(default)s]")
+parser$add_argument("-s", "--skip", action="store_true", default=FALSE,
+			   help="Skip the genome downloading; useful if re-running to re-make the output table [default: %(default)s]")
 parser$add_argument("-v", "--verbose", action="store_true", default=TRUE,
 			   help="Print extra output [default: %(default)s]")
 parser$add_argument("-q", "--quietly", action="store_false",
@@ -75,9 +77,14 @@ procs = as.character(unlist(args['procs'])[1])
 retries = as.character(unlist(args['retries'])[1])
 params = as.character(unlist(args['params'])[1])
 database = as.character(unlist(args['database'])[1])
-cmd = paste(c(exe, '-F', 'fasta', '-o', D, '-p', procs, '-r', retries, '-A', F, '-s', database, params), collapse=' ')
-write(sprintf('Running cmd: %s', cmd), stderr())
-system(cmd)
+skip_bool = args['skip'][1]
+if(skip_bool != TRUE){
+    cmd = paste(c(exe, '-F', 'fasta', '-o', D, '-p', procs, '-r', retries, '-A', F, '-s', database, params), collapse=' ')
+    write(sprintf('Running cmd: %s', cmd), stderr())
+    system(cmd)
+} else {
+    write('Skipping genome download', stderr())
+}
 
 # adding paths to genomes onto the table
 ## getting file paths
@@ -93,7 +100,9 @@ fasta_files$accession = gsub('(GCA_[0-9]+\\.[0-9]+)_.+', '\\1', fasta_files$acce
 df = left_join(df, fasta_files, by=setNames('accession', col))
 
 # recombining tables (if --filter)
-df = rbind(df_complete, df)
+if(filter_bool == TRUE){
+    df = rbind(df_complete, df)
+}
 
 # writing table
 write.table(df, file=stdout(), sep='\t', row.names=FALSE, quote=FALSE)

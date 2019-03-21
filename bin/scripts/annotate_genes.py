@@ -133,8 +133,8 @@ def rename_seqs(best_hits, fasta_file, taxonomy, outfile):
 def format_taxonomy(tax):
     """Formatting taxonomy string
     """
-    #tax = re.sub(' ', '_', tax)
-    tax = re.sub('[^A-Za-z0-9-_]+', '_', tax).split(';')
+    logging.info('Taxonomy string provided {}'.format(tax))
+    tax = re.sub('[^A-Za-z0-9-_;]+', '_', tax).split(';')
     if not len(tax) == 7:
         species = 's__unclassified'
     else:

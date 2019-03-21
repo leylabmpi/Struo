@@ -18,23 +18,28 @@ config['output_dir'] = config['output_dir'].rstrip('/') + '/'
 ## Samples table
 if not os.path.isfile(config['samples_file']):
     raise IOError('Cannot find file: {}'.format(config['samples_file']))
-config['samples'] = pd.read_csv(config['samples_file'], sep='\t', comment='#')
+config['samples'] = pd.read_csv(config['samples_file'], sep='\t', comment='$')
 for f in [config['samples_col'], config['fasta_file_path_col'], config['taxID_col'], config['taxonomy_col']]:
     if f not in config['samples'].columns:
         raise ValueError('Cannot find column: {}'.format(f))
 config['samples'][config['samples_col']] = config['samples'][config['samples_col']].str.replace('[^A-Za-z0-9]+', '_')
 config['samples'] = config['samples'].set_index(config['samples'][config['samples_col']])
-config['samples_unique'] = config['samples'][config['samples_col']].unique().tolist()
 
-### check that files exist
+### check that files exist (skipping if not)
 rowID = 0
+to_rm = []
 for index,row in config['samples'].iterrows():
     rowID += 1
     file_cols = [config['fasta_file_path_col']]
     for f in file_cols:        
     	if not os.path.isfile(str(row[f])):
-           msg = 'Samples table (Row {}): Cannot find file: {}'
-       	   raise ValueError(msg.format(rowID, row[f]))
+           msg = 'Samples table (Row {}): Cannot find file: {}; Skipping\n'
+	   sys.stderr.write(msg.format(rowID, row[f]))
+	   to_rm.append(row[config['samples_col']])
+sys.stderr.write('Total number of skipped rows: {}\n'.format(len(to_rm)))
+config['samples'].drop(to_rm, inplace=True)
+config['samples_unique'] = config['samples'][config['samples_col']].unique().tolist()
+
 
 ## temp_folder
 config['pipeline']['username'] = getpass.getuser()

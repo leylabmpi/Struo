@@ -1,14 +1,15 @@
 #-- I/O --#
 # file listing samples and associated data
-samples_file: tests/samples/samples_n100.txt
-## column names in table
+#samples_file: /ebio/abt3_projects/databases_no-backup/GTDB/release86/metadata_1perGTDBSpec_gte50comp-lt5cont_wPath.tsv
+samples_file: tests/samples/samples_n3.txt
+## column names in samples table
 samples_col: 'ncbi_organism_name'
 fasta_file_path_col: 'fasta_file_path'
 taxID_col: 'ncbi_species_taxid'
 taxonomy_col: 'ncbi_taxonomy'
 
 # output location
-output_dir: tests/output_n100/
+output_dir: /ebio/abt3_projects/software/dev/data/llmgp-db_n3/
 
 #-- databases to create --#
 # Replace "Create" with "Skip" to skip creation of any of these

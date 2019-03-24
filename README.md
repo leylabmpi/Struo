@@ -16,7 +16,7 @@ Ley Lab Metagenome Profiler (LLMGP) Database Maker
 
 ## Getting database genomes
 
-### conda env (llmgp-db)
+### conda env (`llmgp-db`)
 
 * r-argparse
 * r-curl

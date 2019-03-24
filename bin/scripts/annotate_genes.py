@@ -105,13 +105,19 @@ def rename_seqs(best_hits, fasta_file, taxonomy, outfile):
     """
     seq_name = None
     seq = ''
+    annot_cnt = 0
+    annot_skip_cnt = 0
     with open(fasta_file) as inF, open(outfile, 'a') as outF:
         for line in inF:
             if line.startswith('>'):
                 # previous sequence
                 if seq_name is not None and seq != '':
-                    outF.write('\n'.join(['>' + seq_name, seq.rstrip()]) + '\n')
-                    seq = ''
+                    seq = seq.rstrip().strip('*')
+                    outF.write('\n'.join(['>' + seq_name, seq]) + '\n')
+                    annot_cnt += 1
+                else:
+                    annot_skip_cnt += 1
+                seq = ''
                 # hit for sequence?
                 query = line.rstrip().lstrip('>').split(' ')[0]
                 try:
@@ -124,10 +130,17 @@ def rename_seqs(best_hits, fasta_file, taxonomy, outfile):
                 else:
                     seq_name = '|'.join([best_hit[0], taxonomy])
             else:
-                seq += line
+                seq += line.rstrip()
         # final sequence
         if seq_name is not None:
+            seq = seq.rstrip().strip('*')
             outF.write('\n'.join(['>' + seq_name, seq]) + '\n')
+            annot_cnt += 1
+        else:
+            annot_skip_cnt += 1
+
+    logging.info('Number of genes with an annotation: {}'.format(annot_cnt))            
+    logging.info('Number of genes skipped due to no annotation: {}'.format(annot_skip_cnt))  
     logging.info('File written: {}'.format(outfile))
      
 def format_taxonomy(tax):
@@ -154,7 +167,7 @@ def format_taxonomy(tax):
     if not species.startswith('s__'):
         species = 'g__' + species
 
-    tax = ';'.join([genus, species])
+    tax = '.'.join([genus, species])
     logging.info('Converted taxonomy string to {}'.format(tax))
     return tax
 

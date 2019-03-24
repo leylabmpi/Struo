@@ -53,5 +53,9 @@
     "humann2_diamond_makedb" : {
         "time" : "{resources.time}",
         "mem" : "{resources.mem_gb_pt}"
+    },
+    "compress_genes_AA" : {
+        "time" : "{resources.time}",
+        "mem" : "{resources.mem_gb_pt}"
     }
 }

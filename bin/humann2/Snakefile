@@ -99,10 +99,10 @@ rule cat_genes_nuc:
         fna = expand(config['tmp_dir'] + 'prodigal/{sample}_annot.fna',
 	             sample = config['samples_unique'])
     output:
-        fna = humann2_dir + 'all_genes.fna'
+        fna = humann2_dir + 'all_genes_annot.fna'
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 4
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
     log:
         log_dir + 'cat_genes_nuc/all.log'
     benchmark:
@@ -120,10 +120,10 @@ rule cat_genes_AA:
         faa = expand(config['tmp_dir'] + 'prodigal/{sample}_annot.faa',
 	             sample = config['samples_unique'])
     output:
-        faa = humann2_dir + 'all_genes.faa'
+        faa = config['tmp_dir'] + 'all_genes_annot.faa'
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 4
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
     log:
         log_dir + 'cat_genes_AA/all.log'
     benchmark:
@@ -138,7 +138,7 @@ rule humann2_bowtie2_build:
     Running bowtie2 build on combined, annotated genes 
     """
     input:
-        humann2_dir + 'all_genes.fna'
+        humann2_dir + 'all_genes_annot.fna'
     output:
         touch(humann2_dir + 'bowtie2_build.done')
     conda:
@@ -165,7 +165,7 @@ rule humann2_diamond_makedb:
     Running diamond makedb on combined, annotated genes 
     """
     input:
-        humann2_dir + 'all_genes.faa'
+        config['tmp_dir'] + 'all_genes_annot.faa'
     output:
         touch(humann2_dir + 'diamond_makedb.done')
     params:
@@ -183,4 +183,24 @@ rule humann2_diamond_makedb:
         """
         diamond makedb --in {input} -d {params.prefix} 2>&1 > {log}
         """    
+
+rule compress_genes_AA:
+    """
+    Compressing gene seq file (not actually needed for db)
+    """
+    input:
+        faa = config['tmp_dir'] + 'all_genes_annot.faa'
+    output:
+        faa = humann2_dir + 'all_genes_annot.faa.gz'
+    resources:
+        time = lambda wildcards, attempt: attempt ** 2 * 59,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
+    log:
+        log_dir + 'compress_genes_AA/all.log'
+    benchmark:
+        benchmark_dir + 'compress_genes_AA/all.txt'
+    shell:
+        """
+        gzip -c {input.faa} > {output.faa} 2> {log}
+        """
 

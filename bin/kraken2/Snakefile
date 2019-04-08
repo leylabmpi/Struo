@@ -55,6 +55,8 @@ rule kraken2_add_taxID:
         {params.exe} {input.fasta} {params.taxID} > {output} 2> {log}
         """
 
+localrules: kraken2_build_add
+
 rule kraken2_build_add:
     """
     Adding genome fasta files to the kraken database.

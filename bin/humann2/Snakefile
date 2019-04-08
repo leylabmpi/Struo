@@ -100,6 +100,8 @@ rule cat_genes_nuc:
 	             sample = config['samples_unique'])
     output:
         fna = humann2_dir + 'all_genes_annot.fna'
+    params:
+        indir = config['tmp_dir'] + 'prodigal'
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
@@ -108,8 +110,9 @@ rule cat_genes_nuc:
     benchmark:
         benchmark_dir + 'cat_genes_nuc/all.txt'
     shell:
-        """
-        cat {input.fna} > {output.fna} 2> {log}
+        """        
+        find {params.indir} -name "*_annot.fna" | \
+          xargs cat > {output.fna} 2> {log}
         """
 
 rule cat_genes_AA:
@@ -121,6 +124,8 @@ rule cat_genes_AA:
 	             sample = config['samples_unique'])
     output:
         faa = config['tmp_dir'] + 'all_genes_annot.faa'
+    params:
+        indir = config['tmp_dir'] + 'prodigal'
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
@@ -130,7 +135,8 @@ rule cat_genes_AA:
         benchmark_dir + 'cat_genes_AA/all.txt'
     shell:
         """
-        cat {input.faa} > {output.faa} 2> {log}
+        find {params.indir} -name "*_annot.faa" | \
+          xargs cat > {output.faa} 2> {log}
         """
 
 rule humann2_bowtie2_build:

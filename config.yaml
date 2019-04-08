@@ -1,6 +1,5 @@
 #-- I/O --#
 # file listing samples and associated data
-#samples_file: /ebio/abt3_projects/databases_no-backup/GTDB/release86/metadata_1perGTDBSpec_gte50comp-lt5cont_wPath.tsv
 samples_file: tests/samples/samples_n3.txt
 ## column names in samples table
 samples_col: 'ncbi_organism_name'
@@ -34,4 +33,4 @@ params:
 pipeline:
   snakemake_folder: ./
   script_folder: ./bin/scripts/
-  temp_folder: /tmp/global2/        # your username will be added automatically to this path
+  temp_folder: /tmp/global/        # your username will be added automatically to this path

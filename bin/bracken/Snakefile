@@ -1,4 +1,4 @@
-rule braken_build:
+rule bracken_build:
     """
     Build braken database from kraken2 database
     """
@@ -15,7 +15,7 @@ rule braken_build:
         24
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2
+        mem_gb_pt = lambda wildcards, attempt: (attempt + 1) ** 3
     conda:
         '../envs/kraken2.yaml'
     log:
@@ -24,7 +24,11 @@ rule braken_build:
         benchmark_dir + 'bracken_build/ReadLen{read_len}.txt'
     shell:
         """
+        # location of the kraken2 db files
         DB=`dirname {input.kraken2_db}`
+        # removing existing files possibly created by bracken
+        TMP_FILE=$DB"/database.kraken"
+        rm -f $TMP_FILE
 
         {params.exe} -t {threads} -d $DB \
           -k {params.kmer} -l {params.read_len} \

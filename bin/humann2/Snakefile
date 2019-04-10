@@ -72,6 +72,7 @@ rule annotate_genes:
         faa = temp(config['tmp_dir'] + 'prodigal/{sample}_annot.faa')
     params:
         tax = lambda wildcards: config['samples'].loc[wildcards.sample, config['taxonomy_col']],
+        taxID = lambda wildcards: config['samples'].loc[wildcards.sample, config['taxID_col']],
         exe = config['pipeline']['script_folder'] + 'annotate_genes.py',
 	prefix = config['tmp_dir'] + 'prodigal/{sample}'
     resources:
@@ -87,8 +88,8 @@ rule annotate_genes:
         """
         {params.exe} --prefix {params.prefix} \
            --columns qseqid,sseqid,pident,length,qstart,qend,qlen,sstart,send,slen,evalue \
-           {input.hits} {input.fna} {input.faa} "{params.tax}" \
-           2>&1 > {log}
+           {input.hits} {input.fna} {input.faa} "{params.tax}" {params.taxID} \
+           > {log} 2>&1
         """
 
 rule cat_genes_nuc:
@@ -99,20 +100,17 @@ rule cat_genes_nuc:
         fna = expand(config['tmp_dir'] + 'prodigal/{sample}_annot.fna',
 	             sample = config['samples_unique'])
     output:
-        fna = humann2_dir + 'all_genes_annot.fna'
-    params:
-        indir = config['tmp_dir'] + 'prodigal'
+        fna = humann2_dir + 'all_genes_annot.fna.gz'
     resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
+        time = lambda wildcards, attempt: attempt ** 2 * 60 * 24,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 12
     log:
         log_dir + 'cat_genes_nuc/all.log'
     benchmark:
         benchmark_dir + 'cat_genes_nuc/all.txt'
     shell:
         """        
-        find {params.indir} -name "*_annot.fna" | \
-          xargs cat > {output.fna} 2> {log}
+        echo {input.fna} | xargs cat | gzip -c > {output.fna} 2> {log}
         """
 
 rule cat_genes_AA:
@@ -123,20 +121,17 @@ rule cat_genes_AA:
         faa = expand(config['tmp_dir'] + 'prodigal/{sample}_annot.faa',
 	             sample = config['samples_unique'])
     output:
-        faa = config['tmp_dir'] + 'all_genes_annot.faa'
-    params:
-        indir = config['tmp_dir'] + 'prodigal'
+        faa = humann2_dir + 'all_genes_annot.faa.gz'
     resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
+        time = lambda wildcards, attempt: attempt ** 2 * 60 * 24,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 12
     log:
         log_dir + 'cat_genes_AA/all.log'
     benchmark:
         benchmark_dir + 'cat_genes_AA/all.txt'
     shell:
         """
-        find {params.indir} -name "*_annot.faa" | \
-          xargs cat > {output.faa} 2> {log}
+        echo {input.faa} | xargs cat | gzip -c > {output.faa} 2> {log}
         """
 
 rule humann2_bowtie2_build:
@@ -144,7 +139,7 @@ rule humann2_bowtie2_build:
     Running bowtie2 build on combined, annotated genes 
     """
     input:
-        humann2_dir + 'all_genes_annot.fna'
+        humann2_dir + 'all_genes_annot.fna.gz'
     output:
         touch(humann2_dir + 'bowtie2_build.done')
     conda:
@@ -152,8 +147,8 @@ rule humann2_bowtie2_build:
     threads:
         24
     resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3
+        time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3 + 6
     log:
         log_dir + 'bowtie2_build/all.log'
     benchmark:
@@ -164,6 +159,15 @@ rule humann2_bowtie2_build:
 
         bowtie2-build --threads {threads} \
           {input} $PREF 2> {log} 1>&2        
+
+        # check that output exists
+        INDIR=`dirname {input}`
+        IDX_FILES=`find $INDIR -maxdepth 1 -name "*.bt2*"`
+        IDX_FILES=`echo $IDX_FILES | perl -pe 's/ +/\n/g' | wc -l`
+        if [ $IDX_FILES -lt 1 ]; then
+          echo "ERROR: no bowtie2 index files found!"
+          exit 1
+        fi
         """    
 
 rule humann2_diamond_makedb:
@@ -171,7 +175,7 @@ rule humann2_diamond_makedb:
     Running diamond makedb on combined, annotated genes 
     """
     input:
-        config['tmp_dir'] + 'all_genes_annot.faa'
+        humann2_dir + 'all_genes_annot.faa.gz'
     output:
         touch(humann2_dir + 'diamond_makedb.done')
     params:
@@ -179,8 +183,8 @@ rule humann2_diamond_makedb:
     conda:
         '../envs/humann2.yaml'
     resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 12
+        time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 3 * 12
     log:
         log_dir + 'diamond_makedb/all.log'
     benchmark:
@@ -190,23 +194,23 @@ rule humann2_diamond_makedb:
         diamond makedb --in {input} -d {params.prefix} 2>&1 > {log}
         """    
 
-rule compress_genes_AA:
-    """
-    Compressing gene seq file (not actually needed for db)
-    """
-    input:
-        faa = config['tmp_dir'] + 'all_genes_annot.faa'
-    output:
-        faa = humann2_dir + 'all_genes_annot.faa.gz'
-    resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
-    log:
-        log_dir + 'compress_genes_AA/all.log'
-    benchmark:
-        benchmark_dir + 'compress_genes_AA/all.txt'
-    shell:
-        """
-        gzip -c {input.faa} > {output.faa} 2> {log}
-        """
+# rule compress_genes_AA:
+#     """
+#     Compressing gene seq file (not actually needed for db)
+#     """
+#     input:
+#         faa = config['tmp_dir'] + 'all_genes_annot.faa'
+#     output:
+#         faa = humann2_dir + 'all_genes_annot.faa.gz'
+#     resources:
+#         time = lambda wildcards, attempt: attempt ** 2 * 59,
+#         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
+#     log:
+#         log_dir + 'compress_genes_AA/all.log'
+#     benchmark:
+#         benchmark_dir + 'compress_genes_AA/all.txt'
+#     shell:
+#         """
+#         gzip -c {input.faa} > {output.faa} 2> {log}
+#         """
 

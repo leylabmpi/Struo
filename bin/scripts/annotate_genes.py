@@ -8,7 +8,7 @@ from pprint import pprint
 
 desc = 'Annotate a genome based on mapping to UniRef via diamond'
 epi = """DESCRIPTION:
-
+Adding UniRef IDs and taxonomy to genes from a particular genome.
 """
 parser = argparse.ArgumentParser(description=desc,
                                  epilog=epi,
@@ -21,6 +21,8 @@ parser.add_argument('genes_fasta_AA', metavar='genes_fasta_AA', type=str,
                     help='Genes in amino acid fasta format')
 parser.add_argument('taxonomy', metavar='taxonomy', type=str,
                     help='Taxonomy of the genome')
+parser.add_argument('taxID', metavar='taxID', type=str,
+                    help='NCBI TaxID of the genome')
 parser.add_argument('--columns', type=str, default='qseqid,sseqid,pident,length,qstart,qend,qlen,sstart,send,slen,evalue',
                         help='Diamond output columns (default:  %(default)s)')                    
 parser.add_argument('--prefix', type=str, default='genes_annotated',
@@ -36,7 +38,6 @@ parser.add_argument('--skip', action='store_true', default=False,
 parser.add_argument('--threads', type=int, default=1,
                        help='Threads used for diamond (default:  %(default)s)')
 parser.add_argument('--version', action='version', version='0.0.1')
-
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
@@ -101,6 +102,7 @@ def make_best_hit_index(dmnd_hit_file, outfmt_cols):
 def rename_seqs(best_hits, fasta_file, taxonomy, outfile):
     """Renaming sequences based on uniref hits.
     Using naming format: `gene_family|gene_length|taxonomy`
+    Taxonomy format: `g__{genus};s__{species}_taxID{taxID}`
     (see https://bitbucket.org/biobakery/humann2/wiki/Home).
     """
     seq_name = None
@@ -143,11 +145,19 @@ def rename_seqs(best_hits, fasta_file, taxonomy, outfile):
     logging.info('Number of genes skipped due to no annotation: {}'.format(annot_skip_cnt))  
     logging.info('File written: {}'.format(outfile))
      
-def format_taxonomy(tax):
+def format_taxonomy(tax, taxID):
     """Formatting taxonomy string
     """
     logging.info('Taxonomy string provided {}'.format(tax))
+    logging.info('TaxID provided {}'.format(taxID))
+    
+    try:
+        taxID = int(taxID.strip())
+    except ValueError:
+        msg = 'ERROR: taxID "{}" is not an integer!'
+        raise ValueError(msg)
     tax = re.sub('[^A-Za-z0-9-_;]+', '_', tax).split(';')
+    
     if not len(tax) == 7:
         species = 's__unclassified'
     else:
@@ -167,13 +177,19 @@ def format_taxonomy(tax):
     if not species.startswith('s__'):
         species = 'g__' + species
 
+    if genus == 'g__':
+        genus = 'g__unclassified'
+    if species == 's__':
+        species = 's__unclassified'
+        
     tax = '.'.join([genus, species])
+    tax += '__taxID{}'.format(taxID)
     logging.info('Converted taxonomy string to {}'.format(tax))
     return tax
 
 def main(args):
     # formatting taxonomy
-    args.taxonomy = format_taxonomy(args.taxonomy)
+    args.taxonomy = format_taxonomy(args.taxonomy, args.taxID)
     
     # filtering diamond hits
     logging.info('Finding best hit for each gene')
@@ -184,10 +200,12 @@ def main(args):
     logging.info('Renaming genes')
     # nuc
     outfile = args.prefix + '_annot.fna'
-    rename_seqs(best_hits, args.genes_fasta_nuc, args.taxonomy, outfile=outfile)
+    rename_seqs(best_hits, args.genes_fasta_nuc,
+                args.taxonomy, outfile=outfile)
     # AA
     outfile = args.prefix + '_annot.faa'
-    rename_seqs(best_hits, args.genes_fasta_AA, args.taxonomy, outfile=outfile)
+    rename_seqs(best_hits, args.genes_fasta_AA,
+                args.taxonomy, outfile=outfile)
 
     
 if __name__ == '__main__':

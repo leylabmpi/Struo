@@ -76,7 +76,7 @@ rule annotate_genes:
         exe = config['pipeline']['script_folder'] + 'annotate_genes.py',
 	prefix = config['tmp_dir'] + 'prodigal/{sample}'
     resources:
-        time = lambda wildcards, attempt: attempt * 2 * 60 * 12,
+        time = lambda wildcards, attempt: attempt * 2 * 60 * 14,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
     conda:
         '../envs/humann2.yaml'
@@ -92,6 +92,59 @@ rule annotate_genes:
            > {log} 2>&1
         """
 
+rule cluster_genes_nuc:
+    """
+    Clustering genes and taking the centroid
+    """
+    input:
+        config['tmp_dir'] + 'prodigal/{sample}_annot.fna'
+    output:
+        temp(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna')
+    params:
+        params = config['params']['vsearch']
+    threads:
+        8
+    resources:
+        time = lambda wildcards, attempt: attempt ** 2 * 59,
+        mem_gb_pt = lambda wildcards, attempt: attempt * 2
+    conda:
+        '../envs/humann2.yaml'
+    log:
+        log_dir + 'cluster_genes_nuc/{sample}.log'
+    benchmark:
+        benchmark_dir + 'cluster_genes_nuc/{sample}.txt'
+    shell:
+        """
+         vsearch {params.params} \
+           --threads {threads} \
+           --cluster_fast {input} \
+           --centroids {output} \
+           2>&1 > {log}
+        """
+
+rule get_rep_genes_AA:
+    """
+    Selecting the same genes as present in nuc file
+    """
+    input:
+        fna = config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna',
+        faa = config['tmp_dir'] + 'prodigal/{sample}_annot.faa'
+    output:
+        faa = temp(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.faa')
+    params:
+        exe = config['pipeline']['script_folder'] + 'filter_seqs.py'
+    resources:
+        time = lambda wildcards, attempt: attempt ** 2 * 59,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 2
+    log:
+        log_dir + 'get_rep_genes_AA/{sample}.log'
+    benchmark:
+        benchmark_dir + 'get_rep_genes_AA/{sample}.txt'
+    shell:
+        """
+        {params.exe} {input.faa} {input.fna} > {output.faa} 2> {log}
+        """
+
 localrules: cat_genes_nuc
 
 rule cat_genes_nuc:
@@ -99,21 +152,20 @@ rule cat_genes_nuc:
     Combining genes
     """
     input:
-        expand(config['tmp_dir'] + 'prodigal/{sample}_annot.fna',
+        expand(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna',
 	      sample = config['samples_unique'])
     output:
-        humann2_dir + 'all_genes_annot.fna.gz'
+        config['tmp_dir'] + 'humann2/all_genes_annot.fna'
     log:
         log_dir + 'cat_genes_nuc/all.log'
     benchmark:
         benchmark_dir + 'cat_genes_nuc/all.txt'
     run:
-        import gzip
-        with gzip.open(output[0], 'wb') as outF:
+        with open(output[0], 'w') as outF:
             for F in input:
                 with open(F, 'r') as inF:
                     for line in inF:
-                        outF.write(line.encode())
+                        outF.write(line)
 
 localrules: cat_genes_AA
 
@@ -122,22 +174,69 @@ rule cat_genes_AA:
     Combining genes
     """
     input:
-        expand(config['tmp_dir'] + 'prodigal/{sample}_annot.faa',
+        expand(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.faa',
 	       sample = config['samples_unique'])
     output:
-        humann2_dir + 'all_genes_annot.faa.gz'
+        config['tmp_dir'] + 'humann2/all_genes_annot.faa'
     log:
         log_dir + 'cat_genes_AA/all.log'
     benchmark:
         benchmark_dir + 'cat_genes_AA/all.txt'
     run:
-        import gzip
-        with gzip.open(output[0], 'wb') as outF:
+        with open(output[0], 'w') as outF:
             for F in input:
                 with open(F, 'r') as inF:
                     for line in inF:
-                        outF.write(line.encode())
+                        outF.write(line)
 
+rule compress_genes_nuc:
+    """
+    Compressing fasta file
+    """
+    input:
+        config['tmp_dir'] + 'humann2/all_genes_annot.fna'
+    output:
+        humann2_dir + 'all_genes_annot.fna.gz'
+    threads:
+        4
+    conda:
+        '../envs/humann2.yaml'
+    resources:
+        time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3
+    log:
+        log_dir + 'compress_genes_nuc/all.log'
+    benchmark:
+        benchmark_dir + 'compress_genes_nuc/all.txt'
+    shell:
+        """
+        pigz -p {threads} -c {input} > {output} 2> {log}
+        """
+    
+rule compress_genes_AA:
+    """
+    Compressing fasta file
+    """
+    input:
+        config['tmp_dir'] + 'humann2/all_genes_annot.faa'
+    output:
+        humann2_dir + 'all_genes_annot.faa.gz'
+    threads:
+        4
+    conda:
+        '../envs/humann2.yaml'
+    resources:
+        time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3
+    log:
+        log_dir + 'compress_genes_AA/all.log'
+    benchmark:
+        benchmark_dir + 'compress_genes_AA/all.txt'
+    shell:
+        """
+        pigz -p {threads} -c {input} > {output} 2> {log}
+        """
+    
 rule humann2_bowtie2_build:
     """
     Running bowtie2 build on combined, annotated genes 
@@ -198,23 +297,4 @@ rule humann2_diamond_makedb:
         diamond makedb --in {input} -d {params.prefix} 2>&1 > {log}
         """    
 
-# rule compress_genes_AA:
-#     """
-#     Compressing gene seq file (not actually needed for db)
-#     """
-#     input:
-#         faa = config['tmp_dir'] + 'all_genes_annot.faa'
-#     output:
-#         faa = humann2_dir + 'all_genes_annot.faa.gz'
-#     resources:
-#         time = lambda wildcards, attempt: attempt ** 2 * 59,
-#         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
-#     log:
-#         log_dir + 'compress_genes_AA/all.log'
-#     benchmark:
-#         benchmark_dir + 'compress_genes_AA/all.txt'
-#     shell:
-#         """
-#         gzip -c {input.faa} > {output.faa} 2> {log}
-#         """
 

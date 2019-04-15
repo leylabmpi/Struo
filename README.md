@@ -3,7 +3,7 @@ LLMGP-DB
 
 Ley Lab Metagenome Profiler (LLMGP) Database Maker
 
-* Version: 0.1.0
+* Version: 0.1.1
 * Authors:
   * Nick Youngblut <nyoungb2@gmail.com>
   * Jacobo de la Cuesta <jacobo.delacuesta@tuebingen.mpg.de>

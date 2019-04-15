@@ -37,16 +37,31 @@
         "time" : "{resources.time}",
         "mem" : "{resources.mem_gb_pt}"
     },
+    "cluster_genes_nuc" : {
+        "time" : "{resources.time}",
+	"n" : 8,
+        "mem" : "{resources.mem_gb_pt}"
+    },
+    "get_rep_genes_AA" : {
+        "time" : "{resources.time}",
+        "mem" : "{resources.mem_gb_pt}"
+    },
+    "compress_genes_nuc" : {
+        "time" : "{resources.time}",
+	"n" : 4,
+        "mem" : "{resources.mem_gb_pt}"
+    },
+    "compress_genes_AA" : {
+        "time" : "{resources.time}",
+	"n" : 4,
+        "mem" : "{resources.mem_gb_pt}"
+    },
     "humann2_bowtie2_build" : {
         "time" : "{resources.time}",
         "n" : 30,
         "mem" : "{resources.mem_gb_pt}"
     },
     "humann2_diamond_makedb" : {
-        "time" : "{resources.time}",
-        "mem" : "{resources.mem_gb_pt}"
-    },
-    "compress_genes_AA" : {
         "time" : "{resources.time}",
         "mem" : "{resources.mem_gb_pt}"
     }

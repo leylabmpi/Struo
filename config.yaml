@@ -28,9 +28,10 @@ params:
   prodigal: ""
   diamond_db: /ebio/abt3_projects/databases_no-backup/humann2/uniref50/uniref50_annotated.1.1.dmnd
   diamond: --evalue 1e-5 --sensitive
+  vsearch: --id 0.97 --strand both --qmask none --fasta_width 0
 
 #-- snakemake pipeline --#
 pipeline:
   snakemake_folder: ./
   script_folder: ./bin/scripts/
-  temp_folder: /tmp/global/        # your username will be added automatically to this path
+  temp_folder: /tmp/global2/        # your username will be added automatically to this path

@@ -37,14 +37,6 @@
         "time" : "{resources.time}",
         "mem" : "{resources.mem_gb_pt}"
     },
-    "cat_genes_nuc" : {
-        "time" : "{resources.time}",
-        "mem" : "{resources.mem_gb_pt}"
-    },
-    "cat_genes_AA" : {
-        "time" : "{resources.time}",
-        "mem" : "{resources.mem_gb_pt}"
-    },
     "humann2_bowtie2_build" : {
         "time" : "{resources.time}",
         "n" : 30,

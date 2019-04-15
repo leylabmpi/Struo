@@ -92,47 +92,51 @@ rule annotate_genes:
            > {log} 2>&1
         """
 
+localrules: cat_genes_nuc
+
 rule cat_genes_nuc:
     """
     Combining genes
     """
     input:
-        fna = expand(config['tmp_dir'] + 'prodigal/{sample}_annot.fna',
-	             sample = config['samples_unique'])
+        expand(config['tmp_dir'] + 'prodigal/{sample}_annot.fna',
+	      sample = config['samples_unique'])
     output:
-        fna = humann2_dir + 'all_genes_annot.fna.gz'
-    resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 60 * 24,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 12
+        humann2_dir + 'all_genes_annot.fna.gz'
     log:
         log_dir + 'cat_genes_nuc/all.log'
     benchmark:
         benchmark_dir + 'cat_genes_nuc/all.txt'
-    shell:
-        """        
-        echo {input.fna} | xargs cat | gzip -c > {output.fna} 2> {log}
-        """
+    run:
+        import gzip
+        with gzip.open(output[0], 'wb') as outF:
+            for F in input:
+                with open(F, 'r') as inF:
+                    for line in inF:
+                        outF.write(line.encode())
+
+localrules: cat_genes_AA
 
 rule cat_genes_AA:
     """
     Combining genes
     """
     input:
-        faa = expand(config['tmp_dir'] + 'prodigal/{sample}_annot.faa',
-	             sample = config['samples_unique'])
+        expand(config['tmp_dir'] + 'prodigal/{sample}_annot.faa',
+	       sample = config['samples_unique'])
     output:
-        faa = humann2_dir + 'all_genes_annot.faa.gz'
-    resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 60 * 24,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 12
+        humann2_dir + 'all_genes_annot.faa.gz'
     log:
         log_dir + 'cat_genes_AA/all.log'
     benchmark:
         benchmark_dir + 'cat_genes_AA/all.txt'
-    shell:
-        """
-        echo {input.faa} | xargs cat | gzip -c > {output.faa} 2> {log}
-        """
+    run:
+        import gzip
+        with gzip.open(output[0], 'wb') as outF:
+            for F in input:
+                with open(F, 'r') as inF:
+                    for line in inF:
+                        outF.write(line.encode())
 
 rule humann2_bowtie2_build:
     """

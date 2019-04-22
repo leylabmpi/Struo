@@ -24,7 +24,7 @@ rule prodigal:
         gunzip -c {input.fasta} | \
           prodigal {params.params} \
           -o {output.gbk} -d {output.fna} -a {output.faa} \
-          2>&1 > {log}
+          2> {log} 1>&2
         """
 
 rule diamond:
@@ -56,7 +56,7 @@ rule diamond:
            -q {input.faa} -d {input.dmnd_db} -o {output.hits} \
            --tmpdir {params.tmp_dir} --threads {threads} \
            --outfmt 6 qseqid sseqid pident length qstart qend qlen sstart send slen evalue \
-           2>&1 > {log}
+           2> {log} 1>&2
         """
 
 rule annotate_genes:
@@ -89,7 +89,7 @@ rule annotate_genes:
         {params.exe} --prefix {params.prefix} \
            --columns qseqid,sseqid,pident,length,qstart,qend,qlen,sstart,send,slen,evalue \
            {input.hits} {input.fna} {input.faa} "{params.tax}" {params.taxID} \
-           > {log} 2>&1
+           2> {log} 1>&2
         """
 
 rule cluster_genes_nuc:
@@ -119,7 +119,7 @@ rule cluster_genes_nuc:
            --threads {threads} \
            --cluster_fast {input} \
            --centroids {output} \
-           2>&1 > {log}
+           2> {log} 1>&2
         """
 
 rule get_rep_genes_AA:
@@ -130,7 +130,7 @@ rule get_rep_genes_AA:
         fna = config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna',
         faa = config['tmp_dir'] + 'prodigal/{sample}_annot.faa'
     output:
-        faa = temp(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.faa')
+        faa = temp(config['tmp_dir'] + 'filtered/{sample}_annot_reps.faa')
     params:
         exe = config['pipeline']['script_folder'] + 'filter_seqs.py'
     resources:
@@ -145,6 +145,30 @@ rule get_rep_genes_AA:
         {params.exe} {input.faa} {input.fna} > {output.faa} 2> {log}
         """
 
+rule filter_rep_genes_nuc:
+    """
+    Removing genes with duplicate IDs
+    """
+    input:
+        fna = config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna',
+        faa = config['tmp_dir'] + 'filtered/{sample}_annot_reps.faa'
+    output:
+        fna = temp(config['tmp_dir'] + 'filtered/{sample}_annot_reps.fna')
+    params:
+        exe = config['pipeline']['script_folder'] + 'filter_seqs.py'
+    resources:
+        time = lambda wildcards, attempt: attempt ** 2 * 59,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 2
+    log:
+        log_dir + 'filter_rep_genes_nuc/{sample}.log'
+    benchmark:
+        benchmark_dir + 'filter_rep_genes_nuc/{sample}.txt'
+    shell:
+        """
+        {params.exe} {input.fna} {input.faa} > {output.fna} 2> {log}
+        """
+
+
 localrules: cat_genes_nuc
 
 rule cat_genes_nuc:
@@ -152,7 +176,7 @@ rule cat_genes_nuc:
     Combining genes
     """
     input:
-        expand(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna',
+        expand(config['tmp_dir'] + 'filtered/{sample}_annot_reps.fna',
 	      sample = config['samples_unique'])
     output:
         config['tmp_dir'] + 'humann2/all_genes_annot.fna'
@@ -174,7 +198,7 @@ rule cat_genes_AA:
     Combining genes
     """
     input:
-        expand(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.faa',
+        expand(config['tmp_dir'] + 'filtered/{sample}_annot_reps.faa',
 	       sample = config['samples_unique'])
     output:
         config['tmp_dir'] + 'humann2/all_genes_annot.faa'
@@ -282,7 +306,8 @@ rule humann2_diamond_makedb:
     output:
         touch(humann2_dir + 'diamond_makedb.done')
     params:
-        prefix = humann2_dir + 'all_genes'        
+        prefix = humann2_dir + 'all_genes',
+	tmp_dir = config['tmp_dir']
     conda:
         '../envs/humann2.yaml'
     resources:
@@ -294,7 +319,7 @@ rule humann2_diamond_makedb:
         log_dir + 'diamond_makedb/all.txt'
     shell:
         """
-        diamond makedb --in {input} -d {params.prefix} 2>&1 > {log}
+        diamond makedb --in {input} -d {params.prefix} 2> {log} 1>&2
         """    
 
 

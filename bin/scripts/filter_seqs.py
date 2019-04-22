@@ -30,8 +30,8 @@ def make_index(fasta):
         for line in inF:
             if line.startswith('>'):
                 line = line.lstrip('>').rstrip()
-                idx[line] = 1
-    return set(idx.keys())
+                idx[line] = 0
+    return idx
 
 def filter_fasta(fasta, idx):
     with open(fasta) as inF:
@@ -39,16 +39,26 @@ def filter_fasta(fasta, idx):
         seq = ''
         for i,line in enumerate(inF):
             if line.startswith('>'):
+                # last seq
                 if i > 0:
-                    if seq_name in idx:
-                        print('>{}\n{}'.format(seq_name, seq), end='')
+                    try:
+                        if idx[seq_name] < 1:
+                            print('>{}\n{}'.format(seq_name, seq), end='')
+                            idx[seq_name] += 1
+                    except KeyError:
+                        pass
+                # next seq
                 seq_name = line.lstrip('>').rstrip()
                 seq = ''
             else:
                 seq += line
-        if seq_name in idx:
-            print('>{}\n{}'.format(seq_name, seq), end='')
-                
+        # final seq
+        try:
+            if idx[seq_name] < 1:
+                print('>{}\n{}'.format(seq_name, seq), end='')
+                idx[seq_name] += 1
+        except KeyError:
+            pass
 
 def main(args):
     # creating an index

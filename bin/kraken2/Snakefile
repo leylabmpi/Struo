@@ -25,7 +25,7 @@ rule kraken2_build_download_tax:
         OUTDIR=`dirname $OUTDIR`
         echo "# Downloading NCBI taxonomy to $OUTDIR" > {log}
 
-        kraken2-build --download-taxonomy --db $OUTDIR 2>&1 >> {log}
+        kraken2-build --download-taxonomy --db $OUTDIR 2>> {log} 1>&2
         """
 
 rule kraken2_add_taxID:
@@ -86,7 +86,7 @@ rule kraken2_build_add:
         DB=`dirname {input.est}`
         DB=`dirname $DB`
 
-        kraken2-build --db $DB --add-to-library {input.fasta}  2>&1 > {log}
+        kraken2-build --db $DB --add-to-library {input.fasta}  2> {log} 1>&2
         """
     
 rule kraken2_build:
@@ -116,6 +116,6 @@ rule kraken2_build:
         """
         DB=`dirname {output.hash}`
 
-        kraken2-build --build --threads {threads} --db $DB 2>&1 > {log}
+        kraken2-build --build --threads {threads} --db $DB 2> {log} 1>&2
         """
     

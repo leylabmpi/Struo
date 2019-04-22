@@ -32,6 +32,6 @@ rule bracken_build:
 
         {params.exe} -t {threads} -d $DB \
           -k {params.kmer} -l {params.read_len} \
-          2>&1 > {log}
+          2> {log} 1>&2
         """
 

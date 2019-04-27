@@ -12,7 +12,7 @@ parser <- ArgumentParser()
 parser$add_argument("metadata_urls", nargs='+', help=">=1 url to GTDB metadata")
 parser$add_argument("-o", "--output", type='character', default='metadata.tsv',
 			   help="Output file name [default: %(default)s]")
-parser$add_argument("-c", "--columns", type='character', default='ncbi_organism_name,ncbi_genbank_assembly_accession,scaffold_count,contig_count,gc_percentage,genome_size,checkm_completeness,checkm_contamination,checkm_strain_heterogeneity,ncbi_assembly_level,ncbi_refseq_category,ncbi_species_taxid,ncbi_taxonomy,gtdb_taxonomy,mimag_high_quality',
+parser$add_argument("-c", "--columns", type='character', default='ncbi_organism_name,ncbi_genbank_assembly_accession,scaffold_count,contig_count,gc_percentage,genome_size,checkm_completeness,checkm_contamination,checkm_strain_heterogeneity,ncbi_assembly_level,ncbi_refseq_category,ncbi_species_taxid,ncbi_taxonomy,gtdb_taxonomy,mimag_high_quality,gtdb_representative',
 			   help="Table columns to keep [default: %(default)s]")
 parser$add_argument("-f", "--filter", type='character', default='gtdb_representative == "t" & checkm_completeness >= 50 & checkm_contamination < 5',
 			   help="Table columns to keep [default: %(default)s]")
@@ -23,12 +23,15 @@ parser$add_argument("-q", "--quietly", action="store_false",
 args <- parser$parse_args()
 
 
-
 # reading in table(s)
+write(sprintf('Keeping columns: %s', args['columns']), stderr())
+cols = unlist(strsplit(unlist(args['columns']), ','))
+write('----', stderr())
+
 df = list()
-for(url in args['metadata_urls']){
+for(url in unlist(args['metadata_urls'])){
     write(sprintf('Reading in file: %s', url), stderr())
-    df[[url]] = fread(url, sep='\t', check.names=TRUE)
+    df[[url]] = fread(url, sep='\t', check.names=TRUE)[, ..cols]
 }
 
 df = do.call(rbind, df)
@@ -41,11 +44,6 @@ write(sprintf('Filtering rows by expression: %s', x), stderr())
 df = df[eval(parse(text=x)),]
 x = as.character(nrow(df))
 write(sprintf('Number of rows after filtering: %s', x), stderr())
-
-# Selecting columns
-write(sprintf('Selecting columns: %s', args['columns']), stderr())
-cols = unlist(strsplit(unlist(args['columns']), ','))
-df = df[, ..cols]
 
 # Writing table
 write(sprintf('Writing file to: %s', args['output']), stderr())

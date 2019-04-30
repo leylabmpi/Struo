@@ -21,9 +21,11 @@ rule kraken2_build_download_tax:
         benchmark_dir + 'kraken_build_download_tax/all.txt'
     shell:
         """
-        OUTDIR=`dirname {output.est}`
+        OUTDIR=`dirname {output.est}`[B
         OUTDIR=`dirname $OUTDIR`
-        echo "# Downloading NCBI taxonomy to $OUTDIR" > {log}
+        #rm -rf $OUTDIR 2> {log}
+        #mkdir -p $OUTDIR 2>> {log}
+        echo "# Downloading NCBI taxonomy to $OUTDIR" >> {log}
 
         kraken2-build --download-taxonomy --db $OUTDIR 2>> {log} 1>&2
         """

@@ -71,7 +71,8 @@ def all_which_input(wildcards):
         input_files.append(kraken2_dir + 'seqid2taxid.map')
 
     # bracken
-    if not config['databases']['bracken'].startswith('Skip'):
+    if (not config['databases']['kraken2'].startswith('Skip') and
+        not config['databases']['bracken'].startswith('Skip')):
     	x = expand(kraken2_dir + 'database{read_len}mers.kraken',
 	           read_len = config['params']['bracken_build_read_lens'])
         input_files += x

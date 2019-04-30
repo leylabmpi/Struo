@@ -5,20 +5,25 @@ import re
 import argparse
 import logging
 
-desc = 'Filtering sequences based on another sequence file'
+desc = 'Filtering two fasta files down to just intersection'
 epi = """DESCRIPTION:
-Filtering one fasta file to just those sequences found in another.
+Filtering 2 fasta files down to the intersection of their sequencines.
 The sequence headers must perfectly match.
+If any duplicate headers, only the first will be selected.
 
 Output written to STDOUT.
 """
 parser = argparse.ArgumentParser(description=desc,
                                  epilog=epi,
                                  formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('fasta_to_filter', metavar='fasta_to_filter', type=str,
-                    help='Fasta to filter based on the reference')
-parser.add_argument('genes_fasta_ref', metavar='fasta_ref', type=str,
-                    help='Reference fasta used for filtering')
+parser.add_argument('fasta1', metavar='fasta1', type=str,
+                    help='The first fasta file')
+parser.add_argument('fasta2', metavar='fasta2', type=str,
+                    help='The second fasta file')
+parser.add_argument('fasta1_output', metavar='fasta1_output', type=str,
+                    help='Name of the output fasta1 file')
+parser.add_argument('fasta2_output', metavar='fasta2_output', type=str,
+                    help='Name of the output fasta2 file')
 parser.add_argument('--version', action='version', version='0.0.1')
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
@@ -31,19 +36,21 @@ def make_index(fasta):
             if line.startswith('>'):
                 line = line.lstrip('>').rstrip()
                 idx[line] = 0
-    return idx
+    return set(idx.keys())
 
-def filter_fasta(fasta, idx):
-    with open(fasta) as inF:
+def filter_fasta(fasta, idx, output):
+    idx = {k:0 for k in idx}
+    
+    with open(fasta) as inF, open(output, 'w') as outF:
         seq_name = None
         seq = ''
         for i,line in enumerate(inF):
             if line.startswith('>'):
-                # last seq
+                # previous seq
                 if i > 0:
                     try:
                         if idx[seq_name] < 1:
-                            print('>{}\n{}'.format(seq_name, seq), end='')
+                            outF.write('>{}\n{}'.format(seq_name, seq))
                             idx[seq_name] += 1
                     except KeyError:
                         pass
@@ -55,16 +62,18 @@ def filter_fasta(fasta, idx):
         # final seq
         try:
             if idx[seq_name] < 1:
-                print('>{}\n{}'.format(seq_name, seq), end='')
+                outF.write('>{}\n{}'.format(seq_name, seq))
                 idx[seq_name] += 1
         except KeyError:
             pass
 
 def main(args):
-    # creating an index
-    seq_idx = make_index(args.genes_fasta_ref)
-    # filtering the fasta
-    filter_fasta(args.fasta_to_filter, seq_idx)
+    # creating the seq header index
+    seq_idx = make_index(args.fasta1) & make_index(args.fasta2)
+    
+    # filtering the fasta files
+    filter_fasta(args.fasta1, seq_idx, args.fasta1_output)
+    filter_fasta(args.fasta2, seq_idx, args.fasta2_output)
     
 if __name__ == '__main__':
     args = parser.parse_args()

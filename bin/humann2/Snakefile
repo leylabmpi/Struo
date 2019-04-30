@@ -43,13 +43,13 @@ rule diamond:
         8
     resources:
         time = lambda wildcards, attempt: attempt * 2 * 60 * 12,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 2
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3
     conda:
         '../envs/humann2.yaml'
     log:
-        log_dir + 'annotate_genes/{sample}.log'
+        log_dir + 'diamond/{sample}.log'
     benchmark:
-        benchmark_dir + 'annotate_genes/{sample}.txt'
+        benchmark_dir + 'diamond/{sample}.txt'
     shell:
         """
         diamond blastp {params.params} \
@@ -76,7 +76,7 @@ rule annotate_genes:
         exe = config['pipeline']['script_folder'] + 'annotate_genes.py',
 	prefix = config['tmp_dir'] + 'prodigal/{sample}'
     resources:
-        time = lambda wildcards, attempt: attempt * 2 * 60 * 14,
+        time = lambda wildcards, attempt: attempt ** 3 * 59,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 6
     conda:
         '../envs/humann2.yaml'
@@ -97,11 +97,15 @@ rule cluster_genes_nuc:
     Clustering genes and taking the centroid
     """
     input:
-        config['tmp_dir'] + 'prodigal/{sample}_annot.fna'
+        fna = config['tmp_dir'] + 'prodigal/{sample}_annot.fna',
+        faa = config['tmp_dir'] + 'prodigal/{sample}_annot.faa'
     output:
-        temp(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna')
+        reps = temp(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna'),
+        fna = temp(config['tmp_dir'] + 'filtered/{sample}_annot_reps.fna'),
+        faa = temp(config['tmp_dir'] + 'filtered/{sample}_annot_reps.faa')	
     params:
-        params = config['params']['vsearch']
+        params = config['params']['vsearch'],
+        exe = config['pipeline']['script_folder'] + 'filter_seqs.py'
     threads:
         8
     resources:
@@ -115,57 +119,16 @@ rule cluster_genes_nuc:
         benchmark_dir + 'cluster_genes_nuc/{sample}.txt'
     shell:
         """
+         # cluster
          vsearch {params.params} \
            --threads {threads} \
-           --cluster_fast {input} \
-           --centroids {output} \
+           --cluster_fast {input.fna} \
+           --centroids {output.reps} \
            2> {log} 1>&2
-        """
 
-rule get_rep_genes_AA:
-    """
-    Selecting the same genes as present in nuc file
-    """
-    input:
-        fna = config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna',
-        faa = config['tmp_dir'] + 'prodigal/{sample}_annot.faa'
-    output:
-        faa = temp(config['tmp_dir'] + 'filtered/{sample}_annot_reps.faa')
-    params:
-        exe = config['pipeline']['script_folder'] + 'filter_seqs.py'
-    resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 2
-    log:
-        log_dir + 'get_rep_genes_AA/{sample}.log'
-    benchmark:
-        benchmark_dir + 'get_rep_genes_AA/{sample}.txt'
-    shell:
-        """
-        {params.exe} {input.faa} {input.fna} > {output.faa} 2> {log}
-        """
-
-rule filter_rep_genes_nuc:
-    """
-    Removing genes with duplicate IDs
-    """
-    input:
-        fna = config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna',
-        faa = config['tmp_dir'] + 'filtered/{sample}_annot_reps.faa'
-    output:
-        fna = temp(config['tmp_dir'] + 'filtered/{sample}_annot_reps.fna')
-    params:
-        exe = config['pipeline']['script_folder'] + 'filter_seqs.py'
-    resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 2
-    log:
-        log_dir + 'filter_rep_genes_nuc/{sample}.log'
-    benchmark:
-        benchmark_dir + 'filter_rep_genes_nuc/{sample}.txt'
-    shell:
-        """
-        {params.exe} {input.fna} {input.faa} > {output.fna} 2> {log}
+        # filter to just reps (duplicates removed)
+        {params.exe} {output.reps} {input.faa} \
+           {output.fna} {output.faa} 2> {log} 1>&2
         """
 
 
@@ -277,9 +240,9 @@ rule humann2_bowtie2_build:
         time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3 + 6
     log:
-        log_dir + 'bowtie2_build/all.log'
+        log_dir + 'humann2_bowtie2_build/all.log'
     benchmark:
-        log_dir + 'bowtie2_build/all.txt'
+        log_dir + 'humann2_bowtie2_build/all.txt'
     shell:
         """
         PREF=`echo {input} | perl -pe 's/\.[^.]+$//'`
@@ -314,9 +277,9 @@ rule humann2_diamond_makedb:
         time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 3 * 12
     log:
-        log_dir + 'diamond_makedb/all.log'
+        log_dir + 'humann2_diamond_makedb/all.log'
     benchmark:
-        log_dir + 'diamond_makedb/all.txt'
+        log_dir + 'humann2_diamond_makedb/all.txt'
     shell:
         """
         diamond makedb --in {input} -d {params.prefix} 2> {log} 1>&2

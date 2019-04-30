@@ -42,10 +42,6 @@
 	"n" : 8,
         "mem" : "{resources.mem_gb_pt}"
     },
-    "get_rep_genes_AA" : {
-        "time" : "{resources.time}",
-        "mem" : "{resources.mem_gb_pt}"
-    },
     "compress_genes_nuc" : {
         "time" : "{resources.time}",
 	"n" : 4,

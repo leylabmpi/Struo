@@ -72,6 +72,8 @@ snakemake -f \
 	  --jobscript $JOB_SCRIPT \
 	  --latency-wait 120 \
 	  --max-jobs-per-second 2 \
+	  --max-status-checks-per-second 2 \
+	  --printshellcmds \
 	  --restart-times 2 \
 	  --resources temp=$JOBS tempBig=$TEMPR \
 	  --directory $WORKDIR \

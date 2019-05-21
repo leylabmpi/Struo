@@ -48,7 +48,7 @@ config['pipeline']['temp_folder'] = os.path.join(config['pipeline']['temp_folder
                                                  config['pipeline']['username'])
 config['tmp_dir'] = os.path.join(config['pipeline']['temp_folder'],
 		                 'LLMGP-DB_' + str(os.stat('.').st_ino) + '/')
-
+print('\33[33mUsing temporary directory: {} \x1b[0m'.format(config['tmp_dir']))
 
 
 ## including modular snakefiles

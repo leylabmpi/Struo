@@ -1,9 +1,9 @@
 LLMGP-DB
 ========
 
-Ley Lab Metagenome Profiler (LLMGP) Database Maker
+Ley Lab MetaGenome Profiler DataBase generator
 
-* Version: 0.1.1
+* Version: 0.1.2
 * Authors:
   * Nick Youngblut <nyoungb2@gmail.com>
   * Jacobo de la Cuesta <jacobo.delacuesta@tuebingen.mpg.de>
@@ -16,7 +16,7 @@ Ley Lab Metagenome Profiler (LLMGP) Database Maker
 
 ## Getting database genomes
 
-### conda env (`llmgp-db`)
+### conda env setup
 
 * r-argparse
 * r-curl
@@ -26,10 +26,10 @@ Ley Lab Metagenome Profiler (LLMGP) Database Maker
 
 ### Downloading genomes
 
-* If using GTDB genomes, run `GTDB_metadata_filter.R`
+* If using [GTDB](https://gtdb.ecogenomic.org/) genomes, run `GTDB_metadata_filter.R` to select genomes
 * If downloading genomes from genbank/refseq, you can use `genome_download.R`
 
-### Input data (`samples.txt` file)
+## Input data (`samples.txt` file)
 
 * The pipeline requires a tab-delimited table that includes the following columns:
   * Sample ID

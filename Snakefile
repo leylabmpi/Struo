@@ -54,6 +54,7 @@ print('\33[33mUsing temporary directory: {} \x1b[0m'.format(config['tmp_dir']))
 ## including modular snakefiles
 snake_dir = config['pipeline']['snakemake_folder']
 include: snake_dir + 'bin/dirs'
+include: snake_dir + 'bin/Snakefile'
 include: snake_dir + 'bin/kraken2/Snakefile'
 include: snake_dir + 'bin/bracken/Snakefile'
 include: snake_dir + 'bin/humann2/Snakefile'
@@ -91,13 +92,3 @@ rule all:
     input:
         all_which_input
 
-# notifications (only first & last N lines)
-onsuccess:
-    print("Workflow finished, no error")
-    cmd = "(head -n 1000 {log} && tail -n 1000 {log}) | fold -w 900 | mail -s 'LLMGP-DB finished successfully' " + config['pipeline']['email']
-    shell(cmd)
-
-onerror:
-    print("An error occurred")
-    cmd = "(head -n 1000 {log} && tail -n 1000 {log}) | fold -w 900 | mail -s 'LLMGP-DB => error occurred' " + config['pipeline']['email']
-    shell(cmd)

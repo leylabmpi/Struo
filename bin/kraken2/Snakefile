@@ -5,14 +5,14 @@ rule kraken2_build_download_tax:
     Downloading NCBI taxonomy
     """
     output:
-        est = kraken2_dir + 'taxonomy/nucl_est.accession2taxid',
         gb = kraken2_dir + 'taxonomy/nucl_gb.accession2taxid',
-        gss = kraken2_dir + 'taxonomy/nucl_gss.accession2taxid',
         wgs = kraken2_dir + 'taxonomy/nucl_wgs.accession2taxid',
         dump = kraken2_dir + 'taxonomy/taxdump.tar.gz',
         nodes = kraken2_dir + 'taxonomy/nodes.dmp',
         names = kraken2_dir + 'taxonomy/names.dmp',
         merged = kraken2_dir + 'taxonomy/merged.dmp'
+    params:
+        exe = config['pipeline']['script_folder'] + 'kraken2-build'
     conda:
         '../envs/kraken2.yaml'
     log:
@@ -21,13 +21,11 @@ rule kraken2_build_download_tax:
         benchmark_dir + 'kraken_build_download_tax/all.txt'
     shell:
         """
-        OUTDIR=`dirname {output.est}`[B
+        OUTDIR=`dirname {output.gb}`
         OUTDIR=`dirname $OUTDIR`
-        #rm -rf $OUTDIR 2> {log}
-        #mkdir -p $OUTDIR 2>> {log}
         echo "# Downloading NCBI taxonomy to $OUTDIR" >> {log}
 
-        kraken2-build --download-taxonomy --db $OUTDIR 2>> {log} 1>&2
+        {params.exe} --use-ftp --download-taxonomy --db $OUTDIR 2>> {log} 1>&2
         """
 
 rule kraken2_add_taxID:
@@ -66,9 +64,7 @@ rule kraken2_build_add:
     """
     input:
         fasta = config['tmp_dir'] + '{sample}.fna',
-        est = kraken2_dir + 'taxonomy/nucl_est.accession2taxid',
         gb = kraken2_dir + 'taxonomy/nucl_gb.accession2taxid',
-        gss = kraken2_dir + 'taxonomy/nucl_gss.accession2taxid',
         wgs = kraken2_dir + 'taxonomy/nucl_wgs.accession2taxid',
         nodes = kraken2_dir + 'taxonomy/nodes.dmp',
         names = kraken2_dir + 'taxonomy/names.dmp'
@@ -85,7 +81,7 @@ rule kraken2_build_add:
         benchmark_dir + 'kraken2_build_add/{sample}.txt'
     shell:
         """
-        DB=`dirname {input.est}`
+        DB=`dirname {input.gb}`
         DB=`dirname $DB`
 
         kraken2-build --db $DB --add-to-library {input.fasta}  2> {log} 1>&2
@@ -104,10 +100,10 @@ rule kraken2_build:
 	map  = kraken2_dir + 'seqid2taxid.map',
 	taxo = kraken2_dir + 'taxo.k2d'
     threads:
-        30
+        24
     resources:
         time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
-        mem_gb_pt = lambda wildcards, attempt: attempt * 2 + 2
+        mem_gb_pt = lambda wildcards, attempt: attempt * 2 + 3
     conda:
         '../envs/kraken2.yaml'
     log:

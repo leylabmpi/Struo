@@ -1,6 +1,7 @@
 #-- I/O --#
 # file listing samples and associated data
-samples_file: tests/samples/samples_n3.txt
+samples_file: tests/samples/samples_n10.txt
+
 ## column names in samples table
 samples_col: 'ncbi_organism_name'
 fasta_file_path_col: 'fasta_file_path'
@@ -8,7 +9,7 @@ taxID_col: 'ncbi_species_taxid'
 taxonomy_col: 'ncbi_taxonomy'
 
 # output location
-output_dir: /ebio/abt3_projects/software/dev/data/llmgp-db_n3/
+output_dir: /ebio/abt3_projects/software/dev/data/llmgp-db_n10/
 
 #-- databases to create --#
 # Replace "Create" with "Skip" to skip creation of any of these
@@ -27,6 +28,7 @@ params:
     - 150
   prodigal: ""
   diamond_db: /ebio/abt3_projects/databases_no-backup/humann2/uniref50/uniref50_annotated.1.1.dmnd
+  diamond_db_to_mem: True
   diamond: --evalue 1e-3 --sensitive --max-target-seqs 20 --block-size 3 --index-chunks 2
   vsearch: --id 0.97 --strand both --qmask none --fasta_width 0
 

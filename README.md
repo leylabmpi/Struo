@@ -51,6 +51,19 @@ Ley Lab MetaGenome Profiler DataBase generator
 
 For general instuctions on setting up and running the Ley Lab pipelines, see the [ll_pipeline_docs](https://gitlab.tuebingen.mpg.de/leylabmpi/pipelines/ll_pipeline_docs)
 
+### Adding more samples to an existing custom DB
+
+**tl;dr**
+
+Make sure to use the `--notemp` flag. Just add more genomes to the input table and re-run in the pipeline.
+
+**Full description**
+
+Snakemake allows for easy re-running of the pipeline on just genomes that have not yet been processed.
+You can just add more genomes to the input table and re-run the pipeline (test first with `--dryrun`).
+Snakemake should just process the new genomes and then re-create the combined dataset files (this must be done each time).
+
+
 ## Using the resulting databases
 
 * Set the paths to the new, custom databases in the `config_custom-db.yaml` file in the `LLMGP` pipeline.

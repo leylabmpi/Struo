@@ -16,7 +16,7 @@
     },
     "kraken2_build" : {
         "time" : "{resources.time}",
-        "n" : 30,
+        "n" : 24,
         "mem" : "{resources.mem_gb_pt}"
     },
     "bracken_build" : {
@@ -31,7 +31,8 @@
     "diamond" : {
         "time" : "{resources.time}",
         "n" : 8,
-        "mem" : "{resources.mem_gb_pt}"
+        "mem" : "{resources.mem_gb_pt}",
+        "tmpfs" : "{resources.tmpfs}"
     },
     "annotate_genes" : {
         "time" : "{resources.time}",
@@ -54,7 +55,7 @@
     },
     "humann2_bowtie2_build" : {
         "time" : "{resources.time}",
-        "n" : 30,
+        "n" : 24,
         "mem" : "{resources.mem_gb_pt}"
     },
     "humann2_diamond_makedb" : {

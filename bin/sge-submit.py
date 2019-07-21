@@ -31,6 +31,10 @@ try:
 except KeyError:
     mem = 10
 try:
+    tmpfs = '-l tmpfs={}G'.format(job_properties['cluster']['tmpfs'])
+except KeyError:
+    tmpfs = ""
+try:
     std_out = os.path.join(log_path, job_properties['cluster']['output'])
 except KeyError:
     std_out = os.path.join(log_path, '{cluster.output}')
@@ -50,8 +54,9 @@ if re.match('^[0-9]+$', time):
     time = '{:0>2}:{:0>2}:00'.format(hours, minutes)
 
 # formatting qsub command
-cmd = "qsub -pe parallel {n} -l h_vmem={mem}G -l h_rt={time} -o {std_out} -e {std_err} {job_script}"
-cmd = cmd.format(n=n, mem=mem, time=time, std_out=std_out, std_err=std_err, job_script=job_script)
+cmd = "qsub -pe parallel {n} -l h_vmem={mem}G -l h_rt={time} {tmpfs} -o {std_out} -e {std_err} {job_script}"
+cmd = cmd.format(n=n, mem=mem, time=time, tmpfs=tmpfs,
+                 std_out=std_out, std_err=std_err, job_script=job_script)
 
 # subprocess job: qsub
 try:

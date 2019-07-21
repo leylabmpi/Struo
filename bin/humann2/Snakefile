@@ -27,6 +27,13 @@ rule prodigal:
           2> {log} 1>&2
         """
 
+def diamond_tmpfs_size(wildcards, attempt):
+    """Estimating the /tmp/ dir size required to hold the DB
+    """
+    db_size = os.stat(config['params']['diamond_db']).st_size / 1e9
+    db_size = round(db_size + 1.499, 0) + attempt ** 2
+    return int(db_size)
+
 rule diamond:
     """
     Annotating genes via diamond search of UniRef db
@@ -38,12 +45,15 @@ rule diamond:
         hits = temp(config['tmp_dir'] + 'diamond/{sample}_hits.txt')
     params:
         params = config['params']['diamond'],
-        tmp_dir = config['tmp_dir']
+	cp_db = config['params']['diamond_db_to_mem'],
+	tmp_dir = config['tmp_dir'],
+	tmp_db = '/var/sge_tmp.$JOB_ID.0/' + os.path.split(config['params']['diamond_db'])[1]
     threads:
         8
     resources:
         time = lambda wildcards, attempt: attempt * 2 * 60 * 12,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3,
+	tmpfs = diamond_tmpfs_size
     conda:
         '../envs/humann2.yaml'
     log:
@@ -52,11 +62,25 @@ rule diamond:
         benchmark_dir + 'diamond/{sample}.txt'
     shell:
         """
+        # copying db to tmpfs
+        > {log}
+        if [[ $JOB_ID != '' && "{params.cp_db}" == "True" ]]; then
+          DB="{params.tmp_db}"
+          TMPDIR=`dirname {params.tmp_db}`
+          echo "Copying db to tmpfs: {input.dmnd_db} ==> $DB" >> {log}
+          cp -f {input.dmnd_db} $DB 2>> {log}
+        else
+          DB="{input.dmnd_db}"
+          TMPDIR="{params.tmp_dir}"
+          echo "Not copying db to tmpfs" >> {log}
+        fi
+
+        # diamond run
         diamond blastp {params.params} \
-           -q {input.faa} -d {input.dmnd_db} -o {output.hits} \
-           --tmpdir {params.tmp_dir} --threads {threads} \
+           -q {input.faa} -d $DB -o {output.hits} \
+           --tmpdir $TMPDIR --threads {threads} \
            --outfmt 6 qseqid sseqid pident length qstart qend qlen sstart send slen evalue \
-           2> {log} 1>&2
+           2>> {log} 1>&2
         """
 
 rule annotate_genes:
@@ -140,7 +164,7 @@ rule cat_genes_nuc:
     """
     input:
         expand(config['tmp_dir'] + 'filtered/{sample}_annot_reps.fna',
-	      sample = config['samples_unique'])
+               sample = config['samples_unique'])
     output:
         config['tmp_dir'] + 'humann2/all_genes_annot.fna'
     log:

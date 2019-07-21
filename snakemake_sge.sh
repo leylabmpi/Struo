@@ -74,8 +74,9 @@ snakemake -f \
 	  --max-jobs-per-second 2 \
 	  --max-status-checks-per-second 2 \
 	  --printshellcmds \
-	  --restart-times 2 \
 	  --resources temp=$JOBS tempBig=$TEMPR \
 	  --directory $WORKDIR \
 	  "${@:5}"
+
+#	  --restart-times 2 \
 

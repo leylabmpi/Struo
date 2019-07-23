@@ -2,6 +2,7 @@
 from __future__ import print_function
 import sys,os
 import re
+import gzip
 import argparse
 import logging
 
@@ -24,6 +25,8 @@ parser.add_argument('fasta1_output', metavar='fasta1_output', type=str,
                     help='Name of the output fasta1 file')
 parser.add_argument('fasta2_output', metavar='fasta2_output', type=str,
                     help='Name of the output fasta2 file')
+parser.add_argument('--gzip', action='store_true', default=False,
+                    help='gzip output')
 parser.add_argument('--version', action='version', version='0.0.1')
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
@@ -38,10 +41,15 @@ def make_index(fasta):
                 idx[line] = 0
     return set(idx.keys())
 
-def filter_fasta(fasta, idx, output):
+def filter_fasta(fasta, idx, output, gzip_out=False):
     idx = {k:0 for k in idx}
+
+    if gzip_out is True:
+        _open = lambda x: gzip.open(x, 'wb')
+    else:
+        _open = lambda x: open(x, 'w')
     
-    with open(fasta) as inF, open(output, 'w') as outF:
+    with open(fasta) as inF, _open(output) as outF:
         seq_name = None
         seq = ''
         for i,line in enumerate(inF):
@@ -50,7 +58,11 @@ def filter_fasta(fasta, idx, output):
                 if i > 0:
                     try:
                         if idx[seq_name] < 1:
-                            outF.write('>{}\n{}'.format(seq_name, seq))
+                            x = '>{}\n{}'.format(seq_name, seq)
+                            try:
+                                outF.write(x)
+                            except TypeError:
+                                outF.write(x.encode('utf-8'))
                             idx[seq_name] += 1
                     except KeyError:
                         pass
@@ -62,7 +74,11 @@ def filter_fasta(fasta, idx, output):
         # final seq
         try:
             if idx[seq_name] < 1:
-                outF.write('>{}\n{}'.format(seq_name, seq))
+                x = '>{}\n{}'.format(seq_name, seq)
+                try:
+                    outF.write(x)
+                except TypeError:
+                    outF.write(x.encode('utf-8'))
                 idx[seq_name] += 1
         except KeyError:
             pass
@@ -72,8 +88,10 @@ def main(args):
     seq_idx = make_index(args.fasta1) & make_index(args.fasta2)
     
     # filtering the fasta files
-    filter_fasta(args.fasta1, seq_idx, args.fasta1_output)
-    filter_fasta(args.fasta2, seq_idx, args.fasta2_output)
+    filter_fasta(args.fasta1, seq_idx, args.fasta1_output,
+                 gzip_out=args.gzip)
+    filter_fasta(args.fasta2, seq_idx, args.fasta2_output,
+                 gzip_out=args.gzip)
     
 if __name__ == '__main__':
     args = parser.parse_args()

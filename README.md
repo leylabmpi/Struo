@@ -55,13 +55,24 @@ For general instuctions on setting up and running the Ley Lab pipelines, see the
 
 **tl;dr**
 
-Make sure to use the `--notemp` flag. Just add more genomes to the input table and re-run in the pipeline.
+Add new genomes to the input table and delete the following files (if they exist):
+
+* humann2 database
+  * all_genes_annot.dmnd
+* kraken database
+  * hash.k2d
+  * taxo.k2d
+* bracken database
+  * database100mers.kraken
+  * database150mers.kraken
 
 **Full description**
 
 Snakemake allows for easy re-running of the pipeline on just genomes that have not yet been processed.
 You can just add more genomes to the input table and re-run the pipeline (test first with `--dryrun`).
 Snakemake should just process the new genomes and then re-create the combined dataset files (this must be done each time).
+Make sure to not mess with the files in the `nuc_filtered` and `prot_filtered` directories; otherwise,
+snakemake may try to run all genomes again through the computationally expensive gene annotation process.
 
 
 ## Using the resulting databases

@@ -125,8 +125,8 @@ rule cluster_genes_nuc:
         faa = config['tmp_dir'] + 'prodigal/{sample}_annot.faa'
     output:
         reps = temp(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna'),
-        fna = temp(config['tmp_dir'] + 'filtered/{sample}_annot_reps.fna'),
-        faa = temp(config['tmp_dir'] + 'filtered/{sample}_annot_reps.faa')	
+        fna = humann2_dir + 'nuc_filtered/{sample}_annot_reps.fna.gz',
+        faa = humann2_dir + 'prot_filtered/{sample}_annot_reps.faa.gz'
     params:
         params = config['params']['vsearch'],
         exe = config['pipeline']['script_folder'] + 'filter_seqs.py'
@@ -151,10 +151,9 @@ rule cluster_genes_nuc:
            2> {log} 1>&2
 
         # filter to just reps (duplicates removed)
-        {params.exe} {output.reps} {input.faa} \
+        {params.exe} --gzip {output.reps} {input.faa} \
            {output.fna} {output.faa} 2> {log} 1>&2
         """
-
 
 localrules: cat_genes_nuc
 
@@ -163,18 +162,19 @@ rule cat_genes_nuc:
     Combining genes
     """
     input:
-        expand(config['tmp_dir'] + 'filtered/{sample}_annot_reps.fna',
+        expand(humann2_dir + 'nuc_filtered/{sample}_annot_reps.fna.gz',
                sample = config['samples_unique'])
     output:
-        config['tmp_dir'] + 'humann2/all_genes_annot.fna'
+        temp(config['tmp_dir'] + 'humann2/all_genes_annot.fna.gz')
     log:
         log_dir + 'cat_genes_nuc/all.log'
     benchmark:
         benchmark_dir + 'cat_genes_nuc/all.txt'
     run:
-        with open(output[0], 'w') as outF:
+        import gzip
+        with gzip.open(output[0], 'wb') as outF:
             for F in input:
-                with open(F, 'r') as inF:
+                with gzip.open(F, 'rb') as inF:
                     for line in inF:
                         outF.write(line)
 
@@ -185,77 +185,80 @@ rule cat_genes_AA:
     Combining genes
     """
     input:
-        expand(config['tmp_dir'] + 'filtered/{sample}_annot_reps.faa',
+        expand(humann2_dir + 'prot_filtered/{sample}_annot_reps.faa.gz',
 	       sample = config['samples_unique'])
     output:
-        config['tmp_dir'] + 'humann2/all_genes_annot.faa'
+        temp(config['tmp_dir'] + 'humann2/all_genes_annot.faa.gz')
     log:
         log_dir + 'cat_genes_AA/all.log'
     benchmark:
         benchmark_dir + 'cat_genes_AA/all.txt'
     run:
-        with open(output[0], 'w') as outF:
+        import gzip
+        with gzip.open(output[0], 'wb') as outF:
             for F in input:
-                with open(F, 'r') as inF:
+                with gzip.open(F, 'rb') as inF:
                     for line in inF:
                         outF.write(line)
 
-rule compress_genes_nuc:
-    """
-    Compressing fasta file
-    """
-    input:
-        config['tmp_dir'] + 'humann2/all_genes_annot.fna'
-    output:
-        humann2_dir + 'all_genes_annot.fna.gz'
-    threads:
-        4
-    conda:
-        '../envs/humann2.yaml'
-    resources:
-        time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3
-    log:
-        log_dir + 'compress_genes_nuc/all.log'
-    benchmark:
-        benchmark_dir + 'compress_genes_nuc/all.txt'
-    shell:
-        """
-        pigz -p {threads} -c {input} > {output} 2> {log}
-        """
+# rule compress_genes_nuc:
+#     """
+#     Compressing fasta file
+#     """
+#     input:
+#         config['tmp_dir'] + 'humann2/all_genes_annot.fna'
+#     output:
+#         humann2_dir + 'all_genes_annot.fna.gz'
+#     threads:
+#         4
+#     conda:
+#         '../envs/humann2.yaml'
+#     resources:
+#         time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
+#         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3
+#     log:
+#         log_dir + 'compress_genes_nuc/all.log'
+#     benchmark:
+#         benchmark_dir + 'compress_genes_nuc/all.txt'
+#     shell:
+#         """
+#         pigz -p {threads} -c {input} > {output} 2> {log}
+#         """
     
-rule compress_genes_AA:
-    """
-    Compressing fasta file
-    """
-    input:
-        config['tmp_dir'] + 'humann2/all_genes_annot.faa'
-    output:
-        humann2_dir + 'all_genes_annot.faa.gz'
-    threads:
-        4
-    conda:
-        '../envs/humann2.yaml'
-    resources:
-        time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3
-    log:
-        log_dir + 'compress_genes_AA/all.log'
-    benchmark:
-        benchmark_dir + 'compress_genes_AA/all.txt'
-    shell:
-        """
-        pigz -p {threads} -c {input} > {output} 2> {log}
-        """
+# rule compress_genes_AA:
+#     """
+#     Compressing fasta file
+#     """
+#     input:
+#         config['tmp_dir'] + 'humann2/all_genes_annot.faa'
+#     output:
+#         humann2_dir + 'all_genes_annot.faa.gz'
+#     threads:
+#         4
+#     conda:
+#         '../envs/humann2.yaml'
+#     resources:
+#         time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
+#         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3
+#     log:
+#         log_dir + 'compress_genes_AA/all.log'
+#     benchmark:
+#         benchmark_dir + 'compress_genes_AA/all.txt'
+#     shell:
+#         """
+#         pigz -p {threads} -c {input} > {output} 2> {log}
+#         """
     
 rule humann2_bowtie2_build:
     """
     Running bowtie2 build on combined, annotated genes 
     """
     input:
-        humann2_dir + 'all_genes_annot.fna.gz'
+        config['tmp_dir'] + 'humann2/all_genes_annot.fna.gz'
     output:
         touch(humann2_dir + 'bowtie2_build.done')
+    params:
+        prefix = humann2_dir + 'all_genes_annot'
     conda:
         '../envs/humann2.yaml'
     threads:
@@ -269,14 +272,12 @@ rule humann2_bowtie2_build:
         log_dir + 'humann2_bowtie2_build/all.txt'
     shell:
         """
-        PREF=`echo {input} | perl -pe 's/\.[^.]+$//'`
-
         bowtie2-build --threads {threads} \
-          {input} $PREF 2> {log} 1>&2        
+          {input} {params.prefix} 2> {log} 1>&2        
 
         # check that output exists
-        INDIR=`dirname {input}`
-        IDX_FILES=`find $INDIR -maxdepth 1 -name "*.bt2*"`
+        OUTDIR=`dirname {params.prefix}`
+        IDX_FILES=`find $OUTDIR -maxdepth 1 -name "*.bt2*"`
         IDX_FILES=`echo $IDX_FILES | perl -pe 's/ +/\n/g' | wc -l`
         if [ $IDX_FILES -lt 1 ]; then
           echo "ERROR: no bowtie2 index files found!"
@@ -289,11 +290,11 @@ rule humann2_diamond_makedb:
     Running diamond makedb on combined, annotated genes 
     """
     input:
-        humann2_dir + 'all_genes_annot.faa.gz'
+        config['tmp_dir'] + 'humann2/all_genes_annot.faa.gz'
     output:
-        touch(humann2_dir + 'diamond_makedb.done')
+        humann2_dir + 'all_genes_annot.dmnd'
     params:
-        prefix = humann2_dir + 'all_genes',
+        prefix = humann2_dir + 'all_genes_annot',
 	tmp_dir = config['tmp_dir']
     conda:
         '../envs/humann2.yaml'
@@ -306,7 +307,8 @@ rule humann2_diamond_makedb:
         log_dir + 'humann2_diamond_makedb/all.txt'
     shell:
         """
-        diamond makedb --in {input} -d {params.prefix} 2> {log} 1>&2
+        PREF=`echo {output} | perl -pe 's/\.[^.]+$//'`
+        diamond makedb --in {input} -d $PREF 2> {log} 1>&2
         """    
 
 

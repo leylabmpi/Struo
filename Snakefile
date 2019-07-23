@@ -82,8 +82,7 @@ def all_which_input(wildcards):
     if not config['databases']['humann2_bowtie2'].startswith('Skip'):
         input_files.append(humann2_dir + 'bowtie2_build.done')
     if not config['databases']['humann2_diamond'].startswith('Skip'):	
-        input_files.append(humann2_dir + 'diamond_makedb.done')
-        input_files.append(humann2_dir + 'all_genes_annot.faa.gz')
+        input_files.append(humann2_dir + 'all_genes_annot.dmnd')
     
     # ret
     return input_files

@@ -51,6 +51,20 @@ Ley Lab MetaGenome Profiler DataBase generator
 
 For general instuctions on setting up and running the Ley Lab pipelines, see the [ll_pipeline_docs](https://gitlab.tuebingen.mpg.de/leylabmpi/pipelines/ll_pipeline_docs)
 
+**Full description**
+
+Snakemake allows for easy re-running of the pipeline on just genomes that have not yet been processed.
+You can just add more genomes to the input table and re-run the pipeline (test first with `--dryrun`).
+Snakemake should just process the new genomes and then re-create the combined dataset files (this must be done each time).
+Make sure to not mess with the files in the `nuc_filtered` and `prot_filtered` directories; otherwise,
+snakemake may try to run all genomes again through the computationally expensive gene annotation process.
+
+
+## Using the resulting databases
+
+* Set the paths to the new, custom databases in the `config_custom-db.yaml` file in the `LLMGP` pipeline.
+
+
 ### Adding more samples to an existing custom DB
 
 **tl;dr**
@@ -66,18 +80,12 @@ Add new genomes to the input table and delete the following files (if they exist
   * database100mers.kraken
   * database150mers.kraken
 
-**Full description**
+### Adding gene sequences to humann2 databases
 
-Snakemake allows for easy re-running of the pipeline on just genomes that have not yet been processed.
-You can just add more genomes to the input table and re-run the pipeline (test first with `--dryrun`).
-Snakemake should just process the new genomes and then re-create the combined dataset files (this must be done each time).
-Make sure to not mess with the files in the `nuc_filtered` and `prot_filtered` directories; otherwise,
-snakemake may try to run all genomes again through the computationally expensive gene annotation process.
-
-
-## Using the resulting databases
-
-* Set the paths to the new, custom databases in the `config_custom-db.yaml` file in the `LLMGP` pipeline.
+If you have gene sequences already formatted for creating a humann2 custom DB,
+and you'd like to include them with the gene sequences generated from the
+input genomes, then just provide the file paths to the nuc/prot fasta files
+(`humann2_nuc_seqs` and `humann2_prot_seqs` in the `config.yaml` file).
 
 
 # Pipeline overview

@@ -3,7 +3,7 @@ LLMGP-DB
 
 Ley Lab MetaGenome Profiler DataBase generator
 
-* Version: 0.1.3
+* Version: 0.1.4
 * Authors:
   * Nick Youngblut <nyoungb2@gmail.com>
   * Jacobo de la Cuesta <jacobo.delacuesta@tuebingen.mpg.de>

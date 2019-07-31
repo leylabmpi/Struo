@@ -9,7 +9,7 @@ taxID_col: 'ncbi_species_taxid'
 taxonomy_col: 'ncbi_taxonomy'
 
 # output location
-output_dir: /ebio/abt3_projects/software/dev/data/llmgp-db_n10/
+output_dir: tests/output_n10/
 
 #-- databases to create --#
 # Replace "Create" with "Skip" to skip creation of any of these
@@ -31,6 +31,12 @@ params:
   diamond_db_to_mem: True
   diamond: --evalue 1e-3 --sensitive --max-target-seqs 20 --block-size 3 --index-chunks 2
   vsearch: --id 0.97 --strand both --qmask none --fasta_width 0
+
+#-- If adding genes to humann2 database --#
+# If you have nucleotid and/or protein gene sequences formatted for humann2,
+# provide the file paths to the fasta files below (gzip'ed)
+humann2_nuc_seqs: /ebio/abt3_projects/software/dev/llmgag/tests/output_amy_n6/humann2_db/clusters_rep-seqs.fna.gz
+humann2_prot_seqs: /ebio/abt3_projects/software/dev/llmgag/tests/output_amy_n6/humann2_db/clusters_rep-seqs.faa.gz
 
 #-- snakemake pipeline --#
 pipeline:

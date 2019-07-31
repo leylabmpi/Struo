@@ -43,14 +43,9 @@
 	"n" : 8,
         "mem" : "{resources.mem_gb_pt}"
     },
-    "compress_genes_nuc" : {
+    "cluster_all_genes_nuc" : {
         "time" : "{resources.time}",
-	"n" : 4,
-        "mem" : "{resources.mem_gb_pt}"
-    },
-    "compress_genes_AA" : {
-        "time" : "{resources.time}",
-	"n" : 4,
+	"n" : 12,
         "mem" : "{resources.mem_gb_pt}"
     },
     "humann2_bowtie2_build" : {

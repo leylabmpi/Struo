@@ -18,6 +18,8 @@ parser = argparse.ArgumentParser(description=desc,
                                  formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('log_file', metavar='log_file', type=str,
                     help='Snakemake screen log')
+parser.add_argument('--acct', type=str, default='/var/lib/gridengine/default/common/accounting',
+                    help='qacct accouting file (default: %(default)s)')
 parser.add_argument('--version', action='version', version='0.0.1')
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
@@ -181,12 +183,11 @@ def format_input_files(F):
     F = [os.path.split(x)[1] for x in F]
     return ','.join(F)[:40]
 
-def load_qacct(max_lines = 100000):
+def load_qacct(acct_file, max_lines = 100000):
     """Loading tail of qacct into memory
     """
-    F = '/var/lib/gridengine/default/common/accounting'
-    logging.info('Loading qacct log: {}'.format(F))
-    p = Popen(['tac', F], stdout=PIPE)
+    logging.info('Loading qacct log: {}'.format(acct_file))
+    p = Popen(['tac', acct_file], stdout=PIPE)
     output, err = p.communicate()
     rc = p.returncode
 
@@ -202,11 +203,15 @@ def load_qacct(max_lines = 100000):
             qacct_info[line[5]] = ['', '', '', '', '', '']
     return qacct_info
 
-def get_qacct_info(D):
+def get_qacct_info(D, acct_file):
     """Getting job info from qacct log
     """
     # load acct info
-    qacct_info = load_qacct()
+    if os.path.isfile(acct_file):
+        qacct_info = load_qacct(acct_file)
+    else:
+        logging.info('Cannot find qacct log: {}; Skipping'.format(acct_file))        
+        return D
 
     # get exit code
     for rule_name,D1 in D.items():
@@ -275,7 +280,7 @@ def main(args):
     # parsing snakemake log file
     D = parse_log(args.log_file, D)
     # getting info from qacct log table
-    D = get_qacct_info(D)
+    D = get_qacct_info(D, args.acct)
     # writing summary table
     write_summary(D)
 

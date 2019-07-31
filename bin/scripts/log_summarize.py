@@ -28,7 +28,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 ## formatting
 regex_esc = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
 ## search
-regex_date = re.compile(r'^\[([A-Za-z]+ [A-Za-z]+ +\d\d \d\d:\d\d:\d\d \d{4})\]$')    
+regex_date = re.compile(r'^\[([A-Za-z]+ [A-Za-z]+ +\d+ \d\d:\d\d:\d\d \d{4})\]$')    
 regex_rule = re.compile(r'^(localrule|rule) ([A-Za-z0-9-_]+):$')
 regex_error_in = re.compile(r'^Error in rule .+:$')
 regex_error_ex = re.compile(r'^Error executing rule .+see the cluster log$')

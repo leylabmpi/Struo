@@ -5,7 +5,6 @@ Struo
 
 > "Struo" --> from the Latin: “I build” or “I gather”
 
-> Previous name: Ley Lab MetaGenome Profiler DataBase generator (LLMGP-DB)
 
 * Version: 0.1.4
 * Authors:
@@ -14,6 +13,13 @@ Struo
 * Maintainers:
   * Nick Youngblut <nyoungb2@gmail.com>
   * Jacobo de la Cuesta <jacobo.delacuesta@tuebingen.mpg.de>
+* Previous name
+  * Ley Lab MetaGenome Profiler DataBase generator (LLMGP-DB)
+
+
+# Custom databases
+
+Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mpg.de/ebio/projects/struo/)
 
 
 # Description

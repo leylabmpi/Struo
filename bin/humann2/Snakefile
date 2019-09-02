@@ -118,7 +118,8 @@ rule annotate_genes:
 
 rule cluster_genes_nuc:
     """
-    Clustering genes (at nuc level) and taking the centroid
+    Clustering genes (at nuc level) and taking the centroid. 
+    This is done for each sample (genome)
     """
     input:
         fna = config['tmp_dir'] + 'prodigal/{sample}_annot.fna',
@@ -166,7 +167,7 @@ def cat_genes_nuc_input(wcs):
     
 rule cat_genes_nuc:
     """
-    Combining genes
+    Combining genes: from genomes & user-provided genes
     """
     input:
         cat_genes_nuc_input
@@ -195,7 +196,7 @@ def cat_genes_prot_input(wcs):
 
 rule cat_genes_prot:
     """
-    Combining genes
+    Combining genes: from genomes & user-provided genes
     """
     input:
         cat_genes_prot_input

@@ -1,7 +1,11 @@
-LLMGP-DB
-========
+Struo
+=====
 
-Ley Lab MetaGenome Profiler DataBase generator
+**Struo:** a pipeline for building custom databases for common metagenome profilers
+
+> "Struo" --> from the Latin: “I build” or “I gather”
+
+> Previous name: Ley Lab MetaGenome Profiler DataBase generator (LLMGP-DB)
 
 * Version: 0.1.4
 * Authors:
@@ -87,10 +91,7 @@ and you'd like to include them with the gene sequences generated from the
 input genomes, then just provide the file paths to the nuc/prot fasta files
 (`humann2_nuc_seqs` and `humann2_prot_seqs` in the `config.yaml` file).
 
+All genes (from genomes & user-provided) will be clustered altogether with `vsearch`.
+See the `config.yaml` for the default clustering parameters used.
 
-# Pipeline overview
-
-Example run on 2 metagenomes. 
-
-![DAG](./llmgp-db_dag.png)
 

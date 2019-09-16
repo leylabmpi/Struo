@@ -24,7 +24,7 @@ Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mp
 
 # Description
 
-## Getting database genomes
+## Setup
 
 ### conda env setup
 
@@ -33,6 +33,9 @@ Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mp
 * r-data.table
 * r-dplyr
 * ncbi-genome-download
+* snakemake
+
+## Getting database genomes
 
 ### Downloading genomes
 
@@ -41,7 +44,7 @@ Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mp
 
 ## Input data (`samples.txt` file)
 
-* The pipeline requires a tab-delimited table that includes the following columns:
+* The pipeline requires a tab-delimited table that includes the following columns (column names specified in the `config.yaml` file):
   * Sample ID
     * This will usually just be the species/strain names
   * Path to the genome assembly fasta file
@@ -59,25 +62,46 @@ Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mp
     
 ## Running the pipeline
 
-For general instuctions on setting up and running the Ley Lab pipelines, see the [ll_pipeline_docs](https://gitlab.tuebingen.mpg.de/leylabmpi/pipelines/ll_pipeline_docs)
+### Edit the `config.yaml`
 
-**Full description**
+* Specify the input/output paths
+* Modify parameters as needed
+
+### Running locally
+
+`snakemake --use-conda`
+
+### Running on a cluster
+
+If SGE, then you can use the `snakemake_sge.sh` script. You can create a similar bash script
+for other cluster architectures. See the following resources for help:
+
+* [Snakemake docs on cluster config](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html)
+* [Snakemake profiles](https://github.com/Snakemake-Profiles)
+
+### General info on using `snakemake`
 
 Snakemake allows for easy re-running of the pipeline on just genomes that have not yet been processed.
 You can just add more genomes to the input table and re-run the pipeline (test first with `--dryrun`).
 Snakemake should just process the new genomes and then re-create the combined dataset files (this must be done each time).
-Make sure to not mess with the files in the `nuc_filtered` and `prot_filtered` directories; otherwise,
+Make sure to not mess with the files in the `nuc_filtered` and `prot_filtered` directories! Otherwise,
 snakemake may try to run all genomes again through the computationally expensive gene annotation process.
 
 
 ## Using the resulting databases
 
-* Set the paths to the new, custom databases in the `config_custom-db.yaml` file in the `LLMGP` pipeline.
+Set the database paths in humann2, kraken2, etc. to the new, custom database files.
 
+* humann2
+  * nucleotide
+    * `all_genes_annot.fna.gz`
+  * amino acid
+    * `all_genes.dmnd`
+* kraken2
+  * `database*mers.kraken`
+  
 
-### Adding more samples to an existing custom DB
-
-**tl;dr**
+### Adding more samples (genomes) to an existing custom DB
 
 Add new genomes to the input table and delete the following files (if they exist):
 
@@ -90,7 +114,7 @@ Add new genomes to the input table and delete the following files (if they exist
   * database100mers.kraken
   * database150mers.kraken
 
-### Adding gene sequences to humann2 databases
+### Adding existing gene sequences to humann2 databases
 
 If you have gene sequences already formatted for creating a humann2 custom DB,
 and you'd like to include them with the gene sequences generated from the

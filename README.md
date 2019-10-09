@@ -17,9 +17,22 @@ Struo
   * Ley Lab MetaGenome Profiler DataBase generator (LLMGP-DB)
 
 
-# Custom databases
+# Citation
+
+Cuesta-Zuluaga, Jacobo de la, Ruth E. Ley, and Nicholas D. Youngblut. 2019.
+“Struo: A Pipeline for Building Custom Databases for Common Metagenome Profilers.” bioRxiv.
+https://doi.org/10.1101/774372
+
+
+# Pre-built custom databases
 
 Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mpg.de/ebio/projects/struo/)
+
+GTDB releases available:
+  * Release 86
+
+GTDB releases in progress
+  * Release 89
 
 
 # Description
@@ -35,7 +48,13 @@ Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mp
 * ncbi-genome-download
 * snakemake
 
-## Getting database genomes
+### UniRef diamond database(s)
+
+You will need a UniRef diamond database for the humann2 database construction (e.g., UniRef90).
+See the "Download a translated search database" section of the
+[humann2 docs](https://bitbucket.org/biobakery/humann2/wiki/Home#markdown-header-5-download-the-databases).
+
+## Getting reference genomes for the custom databases
 
 ### Downloading genomes
 

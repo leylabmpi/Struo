@@ -35,8 +35,8 @@ params:
 #-- If adding genes to humann2 database --#
 # If you have nucleotid and/or protein gene sequences formatted for humann2,
 # provide the file paths to the fasta files below (gzip'ed)
-humann2_nuc_seqs: Skip #/ebio/abt3_projects/software/dev/llmgag/tests/output_amy_n6/humann2_db/clusters_rep-seqs.fna.gz
-humann2_prot_seqs: Skip #/ebio/abt3_projects/software/dev/llmgag/tests/output_amy_n6/humann2_db/clusters_rep-seqs.faa.gz
+humann2_nuc_seqs: Skip
+humann2_prot_seqs: Skip
 
 #-- snakemake pipeline --#
 pipeline:

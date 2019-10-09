@@ -64,7 +64,7 @@ rule diamond:
         """
         # copying db to tmpfs
         > {log}
-        if [[ $JOB_ID != '' && "{params.cp_db}" == "True" ]]; then
+        if [ ! -z ${{JOB_ID+x}} ] && [ "{params.cp_db}" == "True" ]; then
           DB="{params.tmp_db}"
           TMPDIR=`dirname {params.tmp_db}`
           echo "Copying db to tmpfs: {input.dmnd_db} ==> $DB" >> {log}

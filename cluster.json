@@ -48,6 +48,11 @@
 	"n" : 12,
         "mem" : "{resources.mem_gb_pt}"
     },
+    "cluster_all_genes_nuc_SKIP" : {
+        "time" : "{resources.time}",
+	"n" : 8,
+        "mem" : "{resources.mem_gb_pt}"
+    },
     "humann2_bowtie2_build" : {
         "time" : "{resources.time}",
         "n" : 24,

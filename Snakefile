@@ -47,7 +47,7 @@ config['pipeline']['email'] = config['pipeline']['username'] + '@tuebingen.mpg.d
 config['pipeline']['temp_folder'] = os.path.join(config['pipeline']['temp_folder'],
                                                  config['pipeline']['username'])
 config['tmp_dir'] = os.path.join(config['pipeline']['temp_folder'],
-		                 'LLMGP-DB_' + str(os.stat('.').st_ino) + '/')
+		                 'Struo_' + str(os.stat('.').st_ino) + '/')
 print('\33[33mUsing temporary directory: {} \x1b[0m'.format(config['tmp_dir']))
 
 
@@ -66,6 +66,10 @@ def all_which_input(wildcards):
     input_files = []
     # kraken2
     if not config['databases']['kraken2'].startswith('Skip'):
+        if config['keep_intermediate'] == True:
+            x = expand(kraken2_dir + 'added/{sample}.done',
+                       sample = config['samples_unique'])
+            input_files += x	    
         input_files.append(kraken2_dir + 'hash.k2d')
         input_files.append(kraken2_dir + 'opts.k2d')
         input_files.append(kraken2_dir + 'taxo.k2d')
@@ -79,6 +83,15 @@ def all_which_input(wildcards):
         input_files += x
 
     # humann2
+    if not config['databases']['humann2_bowtie2'].startswith('Skip') and \
+       not config['databases']['humann2_diamond'].startswith('Skip'):
+        if config['keep_intermediate'] == True:
+            x = expand(humann2_dir + 'prodigal/{sample}/annot.fna.gz',
+                       sample = config['samples_unique'])
+            input_files += x
+            x = expand(humann2_dir + 'prodigal/{sample}/annot.faa.gz',
+                       sample = config['samples_unique'])
+            input_files += x
     if not config['databases']['humann2_bowtie2'].startswith('Skip'):
         input_files.append(humann2_dir + 'bowtie2_build.done')
     if not config['databases']['humann2_diamond'].startswith('Skip'):	

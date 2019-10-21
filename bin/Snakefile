@@ -45,6 +45,7 @@ def mk_cmd(success=True):
     cmd = '{exe} {{log}} > {rpt_file}'.format(exe=exe, rpt_file=rpt_file)
     return rpt_file, cmd
 
+
 ## call
 onsuccess:
     rpt_file,cmd = mk_cmd(success=True)
@@ -52,7 +53,7 @@ onsuccess:
         shell(cmd)
     except subprocess.CalledProcessError:
         print('WARNING: could not parse snakemake log file')
-    send_email(rpt_file, config['pipeline']['email'], config, pipeline='LLMGP-DB', success=True)
+    send_email(rpt_file, config['pipeline']['email'], config, pipeline='Struo', success=True)
 
 onerror:
     rpt_file,cmd = mk_cmd(success=False)
@@ -60,5 +61,5 @@ onerror:
         shell(cmd)
     except subprocess.CalledProcessError:
         print('WARNING: could not parse snakemake log file')
-    send_email(rpt_file, config['pipeline']['email'], config, pipeline='LLMGP-DB', success=False)
+    send_email(rpt_file, config['pipeline']['email'], config, pipeline='Struo', success=False)
  

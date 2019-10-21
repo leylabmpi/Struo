@@ -20,7 +20,14 @@ databases:
   humann2_bowtie2: Create
   humann2_diamond: Create
 
+#-- keep intermediate files required for re-creating DBs (eg., w/ more genomes) --#
+# If "True", the intermediate files are saved to `output_dir`
+# Else, the intermediate files are temporarily stored in `temp_folder`
+keep_intermediate: True
+
 #-- software parameters --#
+# `vsearch_per_genome` = per-genome gene clustering
+# `vsearch_all` = all genes clustered (including `humann2_nuc_seqs` & `humann2_prot_seqs`)
 params:
   bracken_build_kmer: 35
   bracken_build_read_lens:
@@ -30,7 +37,8 @@ params:
   diamond_db: /ebio/abt3_projects/databases_no-backup/humann2/uniref50/uniref50_annotated.1.1.dmnd
   diamond_db_to_mem: True
   diamond: --evalue 1e-3 --sensitive --max-target-seqs 20 --block-size 3 --index-chunks 2
-  vsearch: --id 0.97 --strand both --qmask none --fasta_width 0
+  vsearch_per_genome: --id 0.97 --strand both --qmask none --fasta_width 0
+  vsearch_all: --id 1.0 --strand both --qmask none --fasta_width 0
 
 #-- If adding genes to humann2 database --#
 # If you have nucleotid and/or protein gene sequences formatted for humann2,
@@ -42,4 +50,4 @@ humann2_prot_seqs: Skip
 pipeline:
   snakemake_folder: ./
   script_folder: ./bin/scripts/
-  temp_folder: /tmp/global2/        # your username will be added automatically to this path
+  temp_folder: /tmp/global2/     # your username will be added automatically to this path

@@ -6,7 +6,7 @@ Struo
 > "Struo" --> from the Latin: “I build” or “I gather”
 
 
-* Version: 0.1.4
+* Version: 0.1.5
 * Authors:
   * Nick Youngblut <nyoungb2@gmail.com>
   * Jacobo de la Cuesta <jacobo.delacuesta@tuebingen.mpg.de>
@@ -20,8 +20,8 @@ Struo
 # Citation
 
 Cuesta-Zuluaga, Jacobo de la, Ruth E. Ley, and Nicholas D. Youngblut. 2019.
-“Struo: A Pipeline for Building Custom Databases for Common Metagenome Profilers.” bioRxiv.
-https://doi.org/10.1101/774372
+“Struo: A Pipeline for Building Custom Databases for Common Metagenome Profilers.”
+bioRxiv. https://doi.org/10.1101/774372
 
 
 # Pre-built custom databases
@@ -61,7 +61,21 @@ See the "Download a translated search database" section of the
 * If using [GTDB](https://gtdb.ecogenomic.org/) genomes, run `GTDB_metadata_filter.R` to select genomes
 * If downloading genomes from genbank/refseq, you can use `genome_download.R`
 
+Example:
+
+```
+# Filtering GTDB metadata to certain genomes
+./GTDB_metadata_filter.R -o gtdb-r89_bac-arc.tsv https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/bac120_metadata_r89.tsv https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_metadata_r89.tsv
+
+# Downloading all genomes (& creating tab-delim table of genome info)
+./genome_download.R -o genomes -p 8 gtdb-r89_bac-arc.tsv > genomes.txt
+
+# Note: the output of ./genome_download.R can be directly used for running the `Struo` pipeline (see below)
+```
+
 ## Input data (`samples.txt` file)
+
+The table of input files/data can be created using the helper scripts described above. 
 
 * The pipeline requires a tab-delimited table that includes the following columns (column names specified in the `config.yaml` file):
   * Sample ID

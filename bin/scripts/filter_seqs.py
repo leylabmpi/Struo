@@ -33,9 +33,16 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 
 def make_index(fasta):
+    if fasta.endswith('.gz'):
+        _openR = lambda x: gzip.open(x, 'rb')
+    else:
+        _openR = lambda x: open(x, 'r')        
+    
     idx = {}
-    with open(fasta) as inF:
+    with _openR(fasta) as inF:
         for line in inF:
+            if fasta.endswith('.gz'):
+                line = line.decode('utf8')            
             if line.startswith('>'):
                 line = line.lstrip('>').rstrip()
                 idx[line] = 0
@@ -44,15 +51,22 @@ def make_index(fasta):
 def filter_fasta(fasta, idx, output, gzip_out=False):
     idx = {k:0 for k in idx}
 
-    if gzip_out is True:
-        _open = lambda x: gzip.open(x, 'wb')
+    if fasta.endswith('.gz'):
+        _openR = lambda x: gzip.open(x, 'rb')
     else:
-        _open = lambda x: open(x, 'w')
+        _openR = lambda x: open(x, 'r')        
     
-    with open(fasta) as inF, _open(output) as outF:
+    if gzip_out is True:
+        _openW = lambda x: gzip.open(x, 'wb')
+    else:
+        _openW = lambda x: open(x, 'w')
+    
+    with _openR(fasta) as inF, _openW(output) as outF:
         seq_name = None
         seq = ''
         for i,line in enumerate(inF):
+            if fasta.endswith('.gz'):
+                line = line.decode('utf8')
             if line.startswith('>'):
                 # previous seq
                 if i > 0:

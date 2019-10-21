@@ -2,8 +2,9 @@
 from __future__ import print_function
 import sys,os
 import re
-import argparse
+import gzip
 import logging
+import argparse
 from pprint import pprint
 
 desc = 'Annotate a genome based on mapping to UniRef via diamond'
@@ -25,8 +26,8 @@ parser.add_argument('taxID', metavar='taxID', type=str,
                     help='NCBI TaxID of the genome')
 parser.add_argument('--columns', type=str, default='qseqid,sseqid,pident,length,qstart,qend,qlen,sstart,send,slen,evalue',
                         help='Diamond output columns (default:  %(default)s)')                    
-parser.add_argument('--prefix', type=str, default='genes_annotated',
-                        help='Output file name prefix (default:  %(default)s)')
+parser.add_argument('--outdir', type=str, default='genes_annotated',
+                        help='Output directory (default:  %(default)s)')
 parser.add_argument('--dmnd-db', type=str, default='/ebio/abt3_projects/databases_no-backup/humann2/uniref50/uniref50_annotated.1.1.dmnd',
                     help='UniRef dmnd db for annotating genes (default: %(default)s)')
 parser.add_argument('--percid', type=float, default=50.0,
@@ -35,6 +36,8 @@ parser.add_argument('--overlap', type=float, default=80.0,
                         help='Perc. overlap cutoff (longest sequence) for calling a hit (default:  %(default)s)')
 parser.add_argument('--skip', action='store_true', default=False,
                         help='Skip diamond-based annotation if the diamond hits file exists (default:  %(default)s)')
+parser.add_argument('--gzip', action='store_true', default=False,
+                        help='gzip output (default:  %(default)s)')
 parser.add_argument('--threads', type=int, default=1,
                        help='Threads used for diamond (default:  %(default)s)')
 parser.add_argument('--version', action='version', version='0.0.1')
@@ -99,7 +102,7 @@ def make_best_hit_index(dmnd_hit_file, outfmt_cols):
                 hits[qseqid] = [sseqid, pident, perc_overlap]
     return hits
 
-def rename_seqs(best_hits, fasta_file, taxonomy, outfile):
+def rename_seqs(best_hits, fasta_file, taxonomy, outfile, gzip_output=False):
     """Renaming sequences based on uniref hits.
     Using naming format: `gene_family|gene_length|taxonomy`
     Taxonomy format: `g__{genus};s__{species}_taxID{taxID}`
@@ -109,13 +112,22 @@ def rename_seqs(best_hits, fasta_file, taxonomy, outfile):
     seq = ''
     annot_cnt = 0
     annot_skip_cnt = 0
-    with open(fasta_file) as inF, open(outfile, 'a') as outF:
+    if gzip_output == True:
+        _open = lambda x: gzip.open(x, 'ab')
+        outfile += '.gz'
+    else:
+        _open = lambda x: open(x, 'a')
+    
+    with open(fasta_file) as inF, _open(outfile) as outF:
         for line in inF:
             if line.startswith('>'):
                 # previous sequence
                 if seq_name is not None and seq != '':
                     seq = seq.rstrip().strip('*')
-                    outF.write('\n'.join(['>' + seq_name, seq]) + '\n')
+                    x = '\n'.join(['>' + seq_name, seq]) + '\n'
+                    if gzip_output == True:
+                        x = x.encode()   
+                    outF.write(x)
                     annot_cnt += 1
                 else:
                     annot_skip_cnt += 1
@@ -136,7 +148,10 @@ def rename_seqs(best_hits, fasta_file, taxonomy, outfile):
         # final sequence
         if seq_name is not None:
             seq = seq.rstrip().strip('*')
-            outF.write('\n'.join(['>' + seq_name, seq]) + '\n')
+            x = '\n'.join(['>' + seq_name, seq]) + '\n'
+            if gzip_output == True:
+                x = x.encode()
+            outF.write(x)
             annot_cnt += 1
         else:
             annot_skip_cnt += 1
@@ -199,13 +214,15 @@ def main(args):
 
     logging.info('Renaming genes')
     # nuc
-    outfile = args.prefix + '_annot.fna'
+    outfile = os.path.join(args.outdir, 'annot.fna')
     rename_seqs(best_hits, args.genes_fasta_nuc,
-                args.taxonomy, outfile=outfile)
+                args.taxonomy, outfile=outfile,
+                gzip_output=args.gzip)
     # AA
-    outfile = args.prefix + '_annot.faa'
+    outfile = os.path.join(args.outdir, 'annot.faa')
     rename_seqs(best_hits, args.genes_fasta_AA,
-                args.taxonomy, outfile=outfile)
+                args.taxonomy, outfile=outfile,
+                gzip_output=args.gzip)
 
     
 if __name__ == '__main__':

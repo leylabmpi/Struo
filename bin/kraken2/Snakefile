@@ -23,8 +23,9 @@ rule kraken2_build_download_tax:
         """
         OUTDIR=`dirname {output.gb}`
         OUTDIR=`dirname $OUTDIR`
+        rm -rf $OUTDIR 2> {log}
+        mkdir -p $OUTDIR 2>> {log}
         echo "# Downloading NCBI taxonomy to $OUTDIR" >> {log}
-
         {params.exe} --use-ftp --download-taxonomy --db $OUTDIR 2>> {log} 1>&2
         """
 
@@ -69,7 +70,7 @@ rule kraken2_build_add:
         nodes = kraken2_dir + 'taxonomy/nodes.dmp',
         names = kraken2_dir + 'taxonomy/names.dmp'
     output:
-        touch(kraken2_dir + '{sample}_added.done')
+        kraken2_dir + 'added/{sample}.done'
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
         mem_gb_pt = lambda wildcards, attempt: attempt * 6
@@ -85,6 +86,7 @@ rule kraken2_build_add:
         DB=`dirname $DB`
 
         kraken2-build --db $DB --add-to-library {input.fasta}  2> {log} 1>&2
+        touch {output} 2>> {log}
         """
     
 rule kraken2_build:
@@ -92,7 +94,7 @@ rule kraken2_build:
     Building the kraken database
     """
     input:
-        expand(kraken2_dir + '{sample}_added.done',
+        expand(kraken2_dir + 'added/{sample}.done',
 	       sample = config['samples_unique'])
     output:
         hash = kraken2_dir + 'hash.k2d',

@@ -1,0 +1,14 @@
+name: struo
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+- python=3.6
+- snakemake=5.7.0
+- r-base=3.6
+- r-argparse=2.0.1
+- r-curl=4.2
+- r-data.table=1.12.4
+- r-dplyr=0.8.3
+- bioconda::ncbi-genome-download=0.2.10

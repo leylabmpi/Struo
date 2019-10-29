@@ -18,7 +18,7 @@ config['output_dir'] = config['output_dir'].rstrip('/') + '/'
 ## Samples table
 if not os.path.isfile(config['samples_file']):
     raise IOError('Cannot find file: {}'.format(config['samples_file']))
-config['samples'] = pd.read_csv(config['samples_file'], sep='\t', comment='#')
+config['samples'] = pd.read_csv(config['samples_file'], sep='\t')
 for f in [config['samples_col'], config['fasta_file_path_col'], config['taxID_col'], config['taxonomy_col']]:
     if f not in config['samples'].columns:
         raise ValueError('Cannot find column: {}'.format(f))
@@ -31,7 +31,7 @@ to_rm = []
 for index,row in config['samples'].iterrows():
     rowID += 1
     file_cols = [config['fasta_file_path_col']]
-    for f in file_cols:        
+    for f in file_cols:       
     	if not os.path.isfile(str(row[f])):
            msg = 'Samples table (Row {}): Cannot find file: {}; Skipping\n'
 	   sys.stderr.write(msg.format(rowID, row[f]))

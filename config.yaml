@@ -5,8 +5,8 @@ samples_file: tests/samples/samples_n10.txt
 ## column names in samples table
 samples_col: 'ncbi_organism_name'
 fasta_file_path_col: 'fasta_file_path'
-taxID_col: 'ncbi_species_taxid'
-taxonomy_col: 'ncbi_taxonomy'
+taxID_col: 'ncbi_species_taxid'    
+taxonomy_col: 'ncbi_taxonomy'   
 
 # output location
 output_dir: tests/output_n10/
@@ -24,6 +24,10 @@ databases:
 # If "True", the intermediate files are saved to `output_dir`
 # Else, the intermediate files are temporarily stored in `temp_folder`
 keep_intermediate: True
+
+#-- if custom NCBI taxdump files (or just Skip) --#
+names_dmp: Skip 
+nodes_dmp: Skip 
 
 #-- software parameters --#
 # `vsearch_per_genome` = per-genome gene clustering

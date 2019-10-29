@@ -75,6 +75,7 @@ rule diamond:
         else
           DB="{input.dmnd_db}"
           TMPDIR="{params.tmp_dir}"
+          mkdir -p $TMPDIR 2>> {log}
           echo "Not copying db to tmpfs" >> {log}
         fi
 
@@ -294,8 +295,8 @@ if config['humann2_nuc_seqs'] != 'Skip' or config['humann2_prot_seqs'] != 'Skip'
             faa = config['tmp_dir'] + 'humann2/all_genes_annot.faa'
         output:
             reps = temp(config['tmp_dir'] + 'vsearch/all_annot_reps.fna'),
-            fna = temp(config['tmp_dir'] + 'humann2/all_genes_annot.fna.gz'),
-            faa = temp(config['tmp_dir'] + 'humann2/all_genes_annot.faa.gz')
+            fna = humann2_dir + 'all_genes_annot.fna.gz',
+            faa = humann2_dir + 'all_genes_annot.faa.gz'
         params:
             params = config['params']['vsearch_all'],
             exe = config['pipeline']['script_folder'] + 'filter_seqs.py'
@@ -332,8 +333,8 @@ else:
             fna = config['tmp_dir'] + 'humann2/all_genes_annot.fna',
             faa = config['tmp_dir'] + 'humann2/all_genes_annot.faa'
         output:
-            fna = temp(config['tmp_dir'] + 'humann2/all_genes_annot.fna.gz'),
-            faa = temp(config['tmp_dir'] + 'humann2/all_genes_annot.faa.gz')
+            fna = humann2_dir + 'all_genes_annot.fna.gz',
+            faa = humann2_dir + 'all_genes_annot.faa.gz'
         threads:
             8
         resources:
@@ -356,7 +357,7 @@ rule humann2_bowtie2_build:
     Running bowtie2 build on combined, annotated genes 
     """
     input:
-        config['tmp_dir'] + 'humann2/all_genes_annot.fna.gz'
+        humann2_dir + 'all_genes_annot.fna.gz',
     output:
         touch(humann2_dir + 'bowtie2_build.done')
     params:
@@ -392,7 +393,7 @@ rule humann2_diamond_makedb:
     Running diamond makedb on combined, annotated genes 
     """
     input:
-        config['tmp_dir'] + 'humann2/all_genes_annot.faa.gz'
+        humann2_dir + 'all_genes_annot.faa.gz'
     output:
         humann2_dir + 'all_genes_annot.dmnd'
     params:

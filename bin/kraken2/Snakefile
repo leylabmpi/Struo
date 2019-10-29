@@ -1,33 +1,91 @@
-localrules: kraken2_build_download_tax
-
-rule kraken2_build_download_tax:
-    """
-    Downloading NCBI taxonomy
-    """
-    output:
-        gb = kraken2_dir + 'taxonomy/nucl_gb.accession2taxid',
-        wgs = kraken2_dir + 'taxonomy/nucl_wgs.accession2taxid',
-        dump = kraken2_dir + 'taxonomy/taxdump.tar.gz',
-        nodes = kraken2_dir + 'taxonomy/nodes.dmp',
-        names = kraken2_dir + 'taxonomy/names.dmp',
-        merged = kraken2_dir + 'taxonomy/merged.dmp'
-    params:
-        exe = config['pipeline']['script_folder'] + 'kraken2-build'
-    conda:
-        '../envs/kraken2.yaml'
-    log:
-        log_dir + 'kraken_build_download_tax/all.log'
-    benchmark:
-        benchmark_dir + 'kraken_build_download_tax/all.txt'
-    shell:
+if not config['names_dmp'].startswith('Skip') and \
+   not config['nodes_dmp'].startswith('Skip'):
+    localrules: kraken2_cp_dump  
+    rule kraken2_cp_dump:
         """
-        OUTDIR=`dirname {output.gb}`
-        OUTDIR=`dirname $OUTDIR`
-        rm -rf $OUTDIR 2> {log}
-        mkdir -p $OUTDIR 2>> {log}
-        echo "# Downloading NCBI taxonomy to $OUTDIR" >> {log}
-        {params.exe} --use-ftp --download-taxonomy --db $OUTDIR 2>> {log} 1>&2
+        Copying names.dmp taxdump files to kraken2 db
         """
+        input:
+            names = ancient(config['names_dmp']),
+            nodes = ancient(config['nodes_dmp'])
+        output:
+            names = kraken2_dir + 'taxonomy/names.dmp',
+            nodes = kraken2_dir + 'taxonomy/nodes.dmp'
+        log:
+            log_dir + 'kraken2_cp_dump/all.log'
+        shell:
+            """
+            cp -f {input.names} {output.names} 2> {log}
+            cp -f {input.nodes} {output.nodes} 2>> {log}
+            """
+else:
+    localrules: kraken2_build_download_tax
+    rule kraken2_build_download_tax:
+        """
+        Downloading NCBI taxonomy
+        """
+        output:
+            gb = kraken2_dir + 'taxonomy/nucl_gb.accession2taxid',
+            wgs = kraken2_dir + 'taxonomy/nucl_wgs.accession2taxid',
+            dump = kraken2_dir + 'taxonomy/taxdump.tar.gz',
+            nodes = kraken2_dir + 'taxonomy/nodes.dmp',
+            names = kraken2_dir + 'taxonomy/names.dmp',
+            merged = kraken2_dir + 'taxonomy/merged.dmp'
+        params:
+            exe = config['pipeline']['script_folder'] + 'kraken2-build'
+        conda:
+            '../envs/kraken2.yaml'
+        log:
+            log_dir + 'kraken_build_download_tax/all.log'
+        benchmark:
+            benchmark_dir + 'kraken_build_download_tax/all.txt'
+        shell:
+            """
+            OUTDIR=`dirname {output.gb}`
+            OUTDIR=`dirname $OUTDIR`
+            rm -rf $OUTDIR 2> {log}
+            mkdir -p $OUTDIR 2>> {log}
+            echo "# Downloading NCBI taxonomy to $OUTDIR" >> {log}
+            {params.exe} --use-ftp --download-taxonomy --db $OUTDIR 2>> {log} 1>&2
+            """
+    
+# if not config['names_dmp'].startswith('Skip'):
+#     localrules: kraken2_cp_names_dump  
+#     rule kraken2_cp_names_dump:
+#         """
+#         Copying names.dmp taxdump files to kraken2 db
+#         """
+#         input:
+#             dmp = ancient(config['names_dmp']),
+#             gb = kraken2_dir + 'taxonomy/nucl_gb.accession2taxid',
+#             wgs = kraken2_dir + 'taxonomy/nucl_wgs.accession2taxid'
+#         output:
+#             kraken2_dir + 'taxonomy/names.dmp'
+#         log:
+#             log_dir + 'kraken2_cp_names_dump/all.log'
+#         shell:
+#             """
+#             cp -f {input.dmp} {output} 2> {log}
+#             """
+	    
+# if not config['nodes_dmp'].startswith('Skip'):
+#     localrules: kraken2_cp_nodes_dump  
+#     rule kraken2_cp_nodes_dump:
+#         """
+#         Copying nodes.dmp taxdump files to kraken2 db
+#         """
+#         input:
+#             dmp = ancient(config['nodes_dmp']),
+#             gb = kraken2_dir + 'taxonomy/nucl_gb.accession2taxid',
+#             wgs = kraken2_dir + 'taxonomy/nucl_wgs.accession2taxid'
+#         output:
+#             kraken2_dir + 'taxonomy/nodes.dmp'
+#         log:
+#             log_dir + 'kraken2_cp_nodes_dump/all.log'
+#         shell:
+#             """
+#             cp -f {input.dmp} {output} 2> {log}
+#             """   
 
 rule kraken2_add_taxID:
     """
@@ -65,8 +123,6 @@ rule kraken2_build_add:
     """
     input:
         fasta = config['tmp_dir'] + '{sample}.fna',
-        gb = kraken2_dir + 'taxonomy/nucl_gb.accession2taxid',
-        wgs = kraken2_dir + 'taxonomy/nucl_wgs.accession2taxid',
         nodes = kraken2_dir + 'taxonomy/nodes.dmp',
         names = kraken2_dir + 'taxonomy/names.dmp'
     output:
@@ -82,7 +138,7 @@ rule kraken2_build_add:
         benchmark_dir + 'kraken2_build_add/{sample}.txt'
     shell:
         """
-        DB=`dirname {input.gb}`
+        DB=`dirname {input.names}`
         DB=`dirname $DB`
 
         kraken2-build --db $DB --add-to-library {input.fasta}  2> {log} 1>&2

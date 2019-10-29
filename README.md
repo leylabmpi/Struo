@@ -6,7 +6,7 @@ Struo
 > "Struo" --> from the Latin: “I build” or “I gather”
 
 
-* Version: 0.1.5
+* Version: 0.1.6
 * Authors:
   * Nick Youngblut <nyoungb2@gmail.com>
   * Jacobo de la Cuesta <jacobo.delacuesta@tuebingen.mpg.de>

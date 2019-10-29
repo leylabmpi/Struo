@@ -167,7 +167,7 @@ def format_taxonomy(tax, taxID):
     logging.info('TaxID provided {}'.format(taxID))
     
     try:
-        taxID = int(taxID.strip())
+        taxID = int(float(taxID.strip()))
     except ValueError:
         msg = 'ERROR: taxID "{}" is not an integer!'
         raise ValueError(msg)

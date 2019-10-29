@@ -6,7 +6,7 @@ Struo
 > "Struo" --> from the Latin: “I build” or “I gather”
 
 
-* Version: 0.1.6
+* Version: 0.1.5
 * Authors:
   * Nick Youngblut <nyoungb2@gmail.com>
   * Jacobo de la Cuesta <jacobo.delacuesta@tuebingen.mpg.de>
@@ -19,7 +19,7 @@ Struo
 
 # Citation
 
-Cuesta-Zuluaga, Jacobo de la, Ruth E. Ley, and Nicholas D. Youngblut. 2019.
+de la Cuesta-Zuluaga, Jacobo, Ruth E. Ley, and Nicholas D. Youngblut. 2019.
 “Struo: A Pipeline for Building Custom Databases for Common Metagenome Profilers.”
 bioRxiv. https://doi.org/10.1101/774372
 
@@ -29,24 +29,42 @@ bioRxiv. https://doi.org/10.1101/774372
 Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mpg.de/ebio/projects/struo/)
 
 GTDB releases available:
-  * Release 86
+  * Release 86  (14.03.2019)
 
 GTDB releases in progress
-  * Release 89
+  * Release 89 (30.08.2019)
 
+# Tutorial
+
+For a step-by-step example of how to prepare and execute Struo, see the notebook in the `./tutorial/` folder
 
 # Description
 
+## Struo’s workflow
+
+![](./images/struo_workflow.png)
+Struo's work ow encompasses the steps from genome download to database construction
+
 ## Setup
+
+### Download
+
+To download the pipeline, clone the Git repository:
+
+```
+git clone git@github.com:leylabmpi/Struo.git 
+```
 
 ### conda env setup
 
-* r-argparse
-* r-curl
-* r-data.table
-* r-dplyr
-* ncbi-genome-download
-* snakemake
+* python 3.6
+* snakemake 5.7.0
+* r-base 3.6
+* r-argparse 2.0.1
+* r-curl 4.2
+* r-data.table 1.12.4
+* r-dplyr 0.8.3
+* ncbi-genome-download 0.2.10
 
 ### UniRef diamond database(s)
 
@@ -73,6 +91,10 @@ Example:
 # Note: the output of ./genome_download.R can be directly used for running the `Struo` pipeline (see below)
 ```
 
+### User-provided databases
+
+Users can also provide genomes as compressed fasta files (`.fna.gz`). This also requires adding the corresponding information to the `samples.txt` file (see below)
+
 ## Input data (`samples.txt` file)
 
 The table of input files/data can be created using the helper scripts described above. 
@@ -92,6 +114,8 @@ The table of input files/data can be created using the helper scripts described 
       * `g__unclassified`  (if no genus)
       * `s__unclassified`  (if no species)
     * This is needed for humann2
+
+Other columns in the file will be ignored. The path to the samples file should be specified in the `config.yaml` file (see below)
     
 ## Running the pipeline
 
@@ -99,6 +123,7 @@ The table of input files/data can be created using the helper scripts described 
 
 * Specify the input/output paths
 * Modify parameters as needed
+* Add the path to the UniRef diamond database for HUMANn2 (see above for instructions on retrieving this file)
 
 ### Running locally
 
@@ -156,5 +181,6 @@ input genomes, then just provide the file paths to the nuc/prot fasta files
 
 All genes (from genomes & user-provided) will be clustered altogether with `vsearch`.
 See the `config.yaml` for the default clustering parameters used.
+
 
 

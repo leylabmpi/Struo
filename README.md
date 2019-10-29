@@ -28,11 +28,12 @@ bioRxiv. https://doi.org/10.1101/774372
 
 Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mpg.de/ebio/projects/struo/)
 
-GTDB releases available:
-  * Release 86  (14.03.2019)
+**GTDB releases available:**
+* Release 86  (14.03.2019)
 
-GTDB releases in progress
-  * Release 89 (30.08.2019)
+**GTDB releases in progress:**
+* Release 89 (30.08.2019)
+
 
 # Tutorial
 
@@ -43,7 +44,7 @@ For a step-by-step example of how to prepare and execute Struo, see the notebook
 ## Struo’s workflow
 
 ![](./images/struo_workflow.png)
-Struo's work ow encompasses the steps from genome download to database construction
+Struo's workflow encompasses the steps from genome download to database construction
 
 ## Setup
 
@@ -57,14 +58,16 @@ git clone git@github.com:leylabmpi/Struo.git
 
 ### conda env setup
 
-* python 3.6
-* snakemake 5.7.0
-* r-base 3.6
-* r-argparse 2.0.1
-* r-curl 4.2
-* r-data.table 1.12.4
-* r-dplyr 0.8.3
-* ncbi-genome-download 0.2.10
+> Versions listed are those that have been tested
+
+* python=3.6
+* snakemake=5.7.0
+* r-base=3.6
+* r-argparse=2.0.1
+* r-curl=4.2
+* r-data.table=1.12.4
+* r-dplyr=0.8.3
+* ncbi-genome-download=0.2.10
 
 ### UniRef diamond database(s)
 
@@ -93,7 +96,8 @@ Example:
 
 ### User-provided databases
 
-Users can also provide genomes as compressed fasta files (`.fna.gz`). This also requires adding the corresponding information to the `samples.txt` file (see below)
+Users can also provide genomes as compressed fasta files (`.fna.gz`).
+This also requires adding the corresponding information to the `samples.txt` file (see below)
 
 ## Input data (`samples.txt` file)
 
@@ -116,7 +120,19 @@ The table of input files/data can be created using the helper scripts described 
     * This is needed for humann2
 
 Other columns in the file will be ignored. The path to the samples file should be specified in the `config.yaml` file (see below)
-    
+
+### Using the GTDB taxonomy instead of NCBI taxIDs
+
+kraken2 & humann2 databases used NCBI taxIDs, and thus the NCBI taxonomy is used by default
+for `Struo`. You can instead create custom taxIDs from the GTDB taxonomy with
+[gtdb_to_taxdump](https://github.com/nick-youngblut/gtdb_to_taxdump). 
+
+The resulting `names.dmp` and `nodes.dmp` files, along with a genome metadata file that includes the gtdb_taxids,
+then you can modify the Struo pipeline to fully use the GTDB taxonomy & taxIDs.
+You will need to modify the `config.yaml` file (see "If using GTDB taxIDs" below).
+
+
+
 ## Running the pipeline
 
 ### Edit the `config.yaml`
@@ -124,6 +140,22 @@ Other columns in the file will be ignored. The path to the samples file should b
 * Specify the input/output paths
 * Modify parameters as needed
 * Add the path to the UniRef diamond database for HUMANn2 (see above for instructions on retrieving this file)
+
+#### If using GTDB taxIDs
+
+If you have followed "Using the GTDB taxonomy instead of NCBI taxIDs" above, then
+make the following modifications to the `config.yaml` file:
+
+```
+## column names in samples table
+taxID_col: 'gtdb_taxid'
+taxonomy_col: 'gtdb_taxonomy'
+
+#-- if custom NCBI taxdump files --#
+names_dmp: /YOUR/PATH/TO/names.dmp
+nodes_dmp: /YOUR/PATH/TO/nodes.dmp
+```
+
 
 ### Running locally
 
@@ -181,6 +213,33 @@ input genomes, then just provide the file paths to the nuc/prot fasta files
 
 All genes (from genomes & user-provided) will be clustered altogether with `vsearch`.
 See the `config.yaml` for the default clustering parameters used.
+
+
+# Utilities
+
+## `GTDB_metadata_filter.R`
+
+This tool is useful for selecting which GTDB genomes to include in a custom database.
+
+Filter >=1 genome assembly metadata file (e.g., bac120_metadata_r89.tsv)
+by assembly quality or other parameters.
+
+## `genome_download.R`
+
+This tool is useful for downloading genomes from NCBI. 
+
+Download a set of genomes based on NCBI assembly accessions provided
+in a table. The file paths of the downloaded genome fasta files will be
+appended to the input table.
+
+## `tree_prune.py`
+
+This tool is useful for creating a GTDB archaea/bacteria phylogeny
+of all genomes in your custom database. The phylogeny can be used
+for phylogenetic analyses of metagenomes (e.g., Faith's PD or Unifrac).
+
+Prune >=1 phylogeny to just certain taxa. If >1 phylogeny provided,
+then the phylogenies are merged.
 
 
 

@@ -25,9 +25,6 @@ before_install:
   
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION snakemake ncbi-genome-download r-base r-argparse r-curl r-data.table r-dplyr
-  - python setup.py build_ext --inplace
-  - python setup.py build
-  - python setup.py install
   - conda list
   - wget http://ftp.tue.mpg.de/ebio/projects/struo/misc/uniref50.ec_filtered.1.1.dmnd
 

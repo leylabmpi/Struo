@@ -68,7 +68,6 @@ write(sprintf('Number of rows after filtering: %s', nrow(df)), stderr())
 df_acc = df[,col]
 df_acc = as.data.frame(df_acc)
 
-
 # creating temp file of accessions
 ## Creating output directory
 D = normalizePath(unlist(args['output'])[1])
@@ -77,8 +76,6 @@ dir.create(D, showWarnings = FALSE)
 F = file.path(D, 'accession.txt')
 write(sprintf('Writing accessions to: %s', F), stderr())
 write.table(df_acc, file=F, sep='\t', quote=FALSE, col.names=FALSE, row.names=FALSE)
-
-stop();
 
 # calling ncbi genome download
 procs = as.character(unlist(args['procs'])[1])

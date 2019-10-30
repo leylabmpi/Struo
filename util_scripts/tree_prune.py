@@ -29,7 +29,7 @@ parser = argparse.ArgumentParser(description=desc,
                                  epilog=epi,
                                  formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('accs_to_keep', metavar='accs_to_keep', type=str, 
-                    help='Genome accessions to keep on the tree')
+                    help='File of genome accessions to keep on the tree. 1 acc per line')
 parser.add_argument('tree_file', metavar='tree_file', type=str, nargs='+',
                     help='>=1 newick file (or url to the file)')
 parser.add_argument('-r', '--root-brlen', type=float, default=0.0001,

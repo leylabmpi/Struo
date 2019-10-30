@@ -384,7 +384,7 @@ rule humann2_bowtie2_build:
         IDX_FILES=`echo $IDX_FILES | perl -pe 's/ +/\n/g' | wc -l`
         if [ $IDX_FILES -lt 1 ]; then
           echo "ERROR: no bowtie2 index files found!"
-        #  exit 1
+          exit 1
         fi
         """    
 

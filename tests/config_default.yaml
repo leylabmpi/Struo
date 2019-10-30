@@ -42,7 +42,7 @@ params:
   diamond_db_to_mem: True
   diamond: --evalue 1e-3 --sensitive --max-target-seqs 20 --block-size 3 --index-chunks 2
   vsearch_per_genome: --id 0.97 --strand both --qmask none --fasta_width 0
-  vsearch_all: --id 1.0 --strand both --qmask none --fasta_width 0
+  vsearch_all: Skip #--id 1.0 --strand both --qmask none --fasta_width 0
 
 #-- If adding genes to humann2 database --#
 # If you have nucleotid and/or protein gene sequences formatted for humann2,

@@ -1,6 +1,6 @@
 #-- I/O --#
 # file listing samples and associated data
-samples_file: tests/samples/samples_n10.txt
+samples_file: tests/samples/samples_n5.txt
 
 ## column names in samples table
 samples_col: 'ncbi_organism_name'
@@ -9,7 +9,7 @@ taxID_col: 'ncbi_species_taxid'
 taxonomy_col: 'ncbi_taxonomy'   
 
 # output location
-output_dir: tests/output_n10/
+output_dir: tests/output_n5/
 
 #-- databases to create --#
 # Replace "Create" with "Skip" to skip creation of any of these
@@ -38,7 +38,7 @@ params:
     - 100
     - 150
   prodigal: ""
-  diamond_db: uniref50_annotated.1.1.dmnd
+  diamond_db: uniref50.ec_filtered.1.1.dmnd
   diamond_db_to_mem: True
   diamond: --evalue 1e-3 --sensitive --max-target-seqs 20 --block-size 3 --index-chunks 2
   vsearch_per_genome: --id 0.97 --strand both --qmask none --fasta_width 0

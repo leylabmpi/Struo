@@ -1,6 +1,11 @@
+from distutils.spawn import find_executable
+
 # onsuccess/error
 ## funcs
 def write_config(out_file):
+    out_dir = os.path.split(out_file)[0]
+    if not os.path.isdir(out_dir):
+        os.makedirs(out_dir)
     config_tmp = {k:(v.to_string(max_rows=1, max_cols=10) if isinstance(v, pd.DataFrame) else v) \
                   for k,v in config.items()}
     with open(out_file, 'w') as outF:
@@ -18,6 +23,10 @@ def file_atch(file_path, file_type):
    return attach,msg
        
 def send_email(rpt_file, email, config, pipeline='LL_pipeline', success=True):
+    if find_executable('mutt') is None:
+        print('WARNING: `mutt` not found. Not sending an email')
+	return 0
+
     # json of config
     config_json = os.path.join(config['tmp_dir'], 'job_config.json')
     write_config(config_json)

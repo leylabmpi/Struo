@@ -24,7 +24,7 @@ before_install:
   - conda config --add channels bioconda
   
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION snakemake ncbi-genome-download r-base r-argparse r-curl r-data.table r-dplyr
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION snakemake ncbi-genome-download newick_utils r-base r-argparse r-curl r-data.table r-dplyr
   - conda list
   - wget http://ftp.tue.mpg.de/ebio/projects/struo/misc/uniref50.ec_filtered.1.1.dmnd
   - wget -q -O - https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_metadata_r89.tsv | head -n 6 > metadata_n5.tsv

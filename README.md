@@ -70,6 +70,7 @@ git clone git@github.com:leylabmpi/Struo.git
 * r-data.table=1.12.4
 * r-dplyr=0.8.3
 * ncbi-genome-download=0.2.10
+* newick_utils=1.6
 
 ### UniRef diamond database(s)
 

@@ -29,4 +29,4 @@ install:
   - wget http://ftp.tue.mpg.de/ebio/projects/struo/misc/uniref50.ec_filtered.1.1.dmnd
 
 script:
-  - snakemake --use-conda --configfile tests/config.yaml
+  - snakemake --use-conda --configfile tests/config_default.yaml

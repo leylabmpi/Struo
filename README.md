@@ -139,7 +139,10 @@ You will need to modify the `config.yaml` file (see "If using GTDB taxIDs" below
 
 * Specify the input/output paths
 * Modify parameters as needed
-* Add the path to the UniRef diamond database for HUMANn2 (see above for instructions on retrieving this file)
+  * Make sure to add the path to the UniRef diamond database for HUMANn2
+    * see above for instructions on retrieving this file
+* Modify `temp_folder:` if needed
+  * This folder is used just for read/write of temporary files
 
 #### If using GTDB taxIDs
 
@@ -193,7 +196,15 @@ Set the database paths in humann2, kraken2, etc. to the new, custom database fil
 
 ### Adding more samples (genomes) to an existing custom DB
 
-Add new genomes to the input table and delete the following files (if they exist):
+If you set `keep_intermediate: True` for your initial run, then the
+intermediate files from the computationally intensive steps are kept,
+and so those genomes don't have to be reprocessed. Only new genomes will
+be processed, and then the database(s) will be re-created with old + new
+genomes.
+
+First, add new genomes to the input table.
+
+Then, delete the following files (if they exist):
 
 * humann2 database
   * all_genes_annot.dmnd
@@ -204,6 +215,10 @@ Add new genomes to the input table and delete the following files (if they exist
   * database100mers.kraken
   * database150mers.kraken
 
+Finally, re-run the snakemake pipeline. Snakemake should skip the
+genomes that have already been processed. Use `--dryrun` to see what
+snakemake is going to do before actually running the pipeline.
+
 ### Adding existing gene sequences to humann2 databases
 
 If you have gene sequences already formatted for creating a humann2 custom DB,
@@ -212,7 +227,9 @@ input genomes, then just provide the file paths to the nuc/prot fasta files
 (`humann2_nuc_seqs` and `humann2_prot_seqs` in the `config.yaml` file).
 
 All genes (from genomes & user-provided) will be clustered altogether with `vsearch`.
-See the `config.yaml` for the default clustering parameters used.
+See the `vsearch_all:` setting in the `config.yaml` for the default clustering parameters used.
+You can use `vsearch_all: Skip` to skip the clustering and instead all of the sequences
+will just be combined without removing redundancies.
 
 
 # Utilities
@@ -240,6 +257,15 @@ for phylogenetic analyses of metagenomes (e.g., Faith's PD or Unifrac).
 
 Prune >=1 phylogeny to just certain taxa. If >1 phylogeny provided,
 then the phylogenies are merged.
+
+## `gtdb_to_taxdump`
+
+This is a [separate repo](https://github.com/nick-youngblut/gtdb_to_taxdump).
+
+This is useful for creating an NCBI taxdump (names.dmp and nodes.dmp)
+from the GTDB taxonomy. Note that the taxIDs are arbitrary and don't
+match anything in the NCBI! 
+
 
 
 

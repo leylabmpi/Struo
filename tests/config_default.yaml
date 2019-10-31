@@ -17,8 +17,8 @@ output_dir: tests/output_n5/
 databases:
   kraken2: Create
   bracken: Create
-  humann2_bowtie2: Create
-  humann2_diamond: Create
+  humann2_bowtie2: Skip
+  humann2_diamond: Skip
 
 #-- keep intermediate files required for re-creating DBs (eg., w/ more genomes) --#
 # If "True", the intermediate files are saved to `output_dir`

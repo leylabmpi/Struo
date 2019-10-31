@@ -376,9 +376,7 @@ rule humann2_bowtie2_build:
     shell:
         """
         bowtie2-build --threads {threads} \
-          {input} {params.prefix} 
-
-        #2> {log} 1>&2
+          {input} {params.prefix} 2> {log} 1>&2
 
         # check that output exists
         OUTDIR=`dirname {params.prefix}`

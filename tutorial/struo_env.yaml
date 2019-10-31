@@ -12,3 +12,4 @@ dependencies:
 - r-data.table=1.12.4
 - r-dplyr=0.8.3
 - bioconda::ncbi-genome-download=0.2.10
+- bioconda::newick_utils=1.6

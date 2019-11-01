@@ -31,12 +31,16 @@ bioRxiv. https://doi.org/10.1101/774372
 Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mpg.de/ebio/projects/struo/)
 
 **GTDB releases available:**
-* Release 86  (14.03.2019)
+* Release 86 (14.03.2019)
+  * Number of genomes included: 21,276
+  * NCBI taxonomy/taxIDs used
 
 **GTDB releases in progress:**
 * Release 89 (30.08.2019)
-
-
+  * Number of genomes included: 23,361
+  * GTDB taxonomy/taxIDs used
+    * taxIDs assigned with [gtdb_to_taxdump](https://github.com/nick-youngblut/gtdb_to_taxdump)
+  
 # Tutorial
 
 For a step-by-step example of how to prepare and execute Struo, see the notebook in the `./tutorial/` folder

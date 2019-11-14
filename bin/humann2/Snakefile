@@ -6,7 +6,8 @@ rule prodigal:
     Running prodigal on each genome
     """
     input:
-        fasta = lambda wildcards: config['samples'].loc[wildcards.sample, config['fasta_file_path_col']]
+        fasta = lambda wildcards: \
+	  config['samples'].loc[wildcards.sample, config['fasta_file_path_col']]
     output:
         fna = temp(config['tmp_dir'] + 'prodigal/{sample}.fna'),
         faa = temp(config['tmp_dir'] + 'prodigal/{sample}.faa'),
@@ -98,11 +99,13 @@ if config['keep_intermediate'] == True:
             fna = config['tmp_dir'] + 'prodigal/{sample}.fna',
             faa = config['tmp_dir'] + 'prodigal/{sample}.faa',
         output:
-            fna = humann2_dir + 'prodigal/{sample}/annot.fna.gz',
-            faa = humann2_dir + 'prodigal/{sample}/annot.faa.gz'
+            fna = annot_dir + 'prodigal/{sample}/annot.fna.gz',
+            faa = annot_dir + 'prodigal/{sample}/annot.faa.gz'
         params:
-            tax = lambda wildcards: config['samples'].loc[wildcards.sample, config['taxonomy_col']],
-            taxID = lambda wildcards: config['samples'].loc[wildcards.sample, config['taxID_col']],
+            tax = lambda wildcards: \
+	      config['samples'].loc[wildcards.sample, config['taxonomy_col']],
+            taxID = lambda wildcards: \
+	      config['samples'].loc[wildcards.sample, config['taxID_col']],
             exe = config['pipeline']['script_folder'] + 'annotate_genes.py'
         resources:
             time = lambda wildcards, attempt: attempt ** 3 * 59,
@@ -135,8 +138,10 @@ else:
             fna = temp(config['tmp_dir'] + 'prodigal/{sample}/annot.fna'),
             faa = temp(config['tmp_dir'] + 'prodigal/{sample}/annot.faa')
         params:
-            tax = lambda wildcards: config['samples'].loc[wildcards.sample, config['taxonomy_col']],
-            taxID = lambda wildcards: config['samples'].loc[wildcards.sample, config['taxID_col']],
+            tax = lambda wildcards: \
+	      config['samples'].loc[wildcards.sample, config['taxonomy_col']],
+            taxID = lambda wildcards: \
+	      config['samples'].loc[wildcards.sample, config['taxID_col']],
             exe = config['pipeline']['script_folder'] + 'annotate_genes.py',
             prefix = config['tmp_dir'] + 'prodigal/{sample}'
         resources:
@@ -161,9 +166,15 @@ def which_input_cluster_genes_nuc(wildcards, type='nuc'):
     """
     if config['keep_intermediate'] == True:
         if type == 'nuc':
-            return humann2_dir + 'prodigal/{sample}/annot.fna.gz'
+            if config['use_ancient'] == True:
+                return ancient(annot_dir + 'prodigal/{sample}/annot.fna.gz')
+            else:
+                return annot_dir + 'prodigal/{sample}/annot.fna.gz'
         else:
-            return humann2_dir + 'prodigal/{sample}/annot.faa.gz'
+            if config['use_ancient'] == True:
+                return ancient(annot_dir + 'prodigal/{sample}/annot.faa.gz')
+            else:
+                return annot_dir + 'prodigal/{sample}/annot.faa.gz'                
     else:
         if type == 'nuc':
             return config['tmp_dir'] + 'prodigal/{sample}/annot.fna'
@@ -180,8 +191,8 @@ rule cluster_genes_nuc:
         faa = lambda wildcards: which_input_cluster_genes_nuc(wildcards, type='prot')
     output:
         reps = temp(config['tmp_dir'] + 'vsearch/{sample}_annot_reps.fna'),
-        fna = humann2_dir + 'nuc_filtered/{sample}_annot_reps.fna.gz',
-        faa = humann2_dir + 'prot_filtered/{sample}_annot_reps.faa.gz'
+        fna = annot_dir + 'nuc_filtered/{sample}_annot_reps.fna.gz',
+        faa = annot_dir + 'prot_filtered/{sample}_annot_reps.faa.gz'
     params:
         params = config['params']['vsearch_per_genome'],
         exe = config['pipeline']['script_folder'] + 'filter_seqs.py',
@@ -228,8 +239,12 @@ localrules: cat_genes_nuc
 def cat_genes_nuc_input(wildcards):
     """If user-provide sequences, adding them to the input file list
     """
-    x = expand(humann2_dir + 'nuc_filtered/{sample}_annot_reps.fna.gz',
-               sample = config['samples_unique'])
+    if config['use_ancient'] == True:
+        x = expand(ancient(annot_dir + 'nuc_filtered/{sample}_annot_reps.fna.gz'),
+                   sample = config['samples_unique'])
+    else:
+        x = expand(annot_dir + 'nuc_filtered/{sample}_annot_reps.fna.gz',
+                   sample = config['samples_unique'])
     if os.path.isfile(config['humann2_nuc_seqs']):
         x.append(config['humann2_nuc_seqs'])
     return(x)
@@ -257,8 +272,12 @@ rule cat_genes_nuc:
 localrules: cat_genes_prot
 
 def cat_genes_prot_input(wcs):
-    x = expand(humann2_dir + 'prot_filtered/{sample}_annot_reps.faa.gz',
-               sample = config['samples_unique'])
+    if config['use_ancient'] == True:
+        x = expand(ancient(annot_dir + 'prot_filtered/{sample}_annot_reps.faa.gz'),
+                   sample = config['samples_unique'])
+    else:
+        x = expand(annot_dir + 'prot_filtered/{sample}_annot_reps.faa.gz',
+                   sample = config['samples_unique'])
     if os.path.isfile(config['humann2_prot_seqs']):
         x.append(config['humann2_prot_seqs'])
     return x
@@ -284,7 +303,7 @@ rule cat_genes_prot:
                         outF.write(line.decode('utf-8'))
 
 if config['humann2_nuc_seqs'] != 'Skip' or config['humann2_prot_seqs'] != 'Skip' and \
-   not config['params']['vserach_all'].startswith('Skip'):
+   not config['params']['vsearch_all'].startswith('Skip'):
     rule cluster_all_genes_nuc:
         """
         Clustering genes (at nuc level) and taking the centroid.        
@@ -333,8 +352,8 @@ else:
             fna = config['tmp_dir'] + 'humann2/all_genes_annot.fna',
             faa = config['tmp_dir'] + 'humann2/all_genes_annot.faa'
         output:
-            fna = humann2_dir + 'all_genes_annot.fna.gz',
-            faa = humann2_dir + 'all_genes_annot.faa.gz'
+            fna = os.path.join(humann2_dir, 'all_genes_annot.fna.gz'),
+            faa = os.path.join(humann2_dir, 'all_genes_annot.faa.gz')
         threads:
             8
         resources:
@@ -357,9 +376,9 @@ rule humann2_bowtie2_build:
     Running bowtie2 build on combined, annotated genes 
     """
     input:
-        humann2_dir + 'all_genes_annot.fna.gz',
+        os.path.join(humann2_dir, 'all_genes_annot.fna.gz')
     output:
-        touch(humann2_dir + 'bowtie2_build.done')
+        touch(os.path.join(humann2_dir, 'bowtie2_build.done'))
     params:
         prefix = humann2_dir + 'all_genes_annot'
     conda:
@@ -393,12 +412,11 @@ rule humann2_diamond_makedb:
     Running diamond makedb on combined, annotated genes 
     """
     input:
-        humann2_dir + 'all_genes_annot.faa.gz'
+        os.path.join(humann2_dir, 'all_genes_annot.faa.gz')
     output:
-        humann2_dir + 'all_genes_annot.dmnd'
+        os.path.join(humann2_dir, 'all_genes_annot.dmnd')
     params:
-        prefix = humann2_dir + 'all_genes_annot',
-	tmp_dir = config['tmp_dir']
+        tmp_dir = config['tmp_dir']
     conda:
         '../envs/humann2.yaml'
     resources:

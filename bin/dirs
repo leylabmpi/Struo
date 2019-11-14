@@ -1,8 +1,9 @@
 import os
 
-kraken2_dir = os.path.join(config['output_dir'], 'kraken2/')
-bracken_dir = os.path.join(config['output_dir'], 'bracken/')
-humann2_dir = os.path.join(config['output_dir'], 'humann2/')
+annot_dir = os.path.join(config['output_dir'], 'annotated_genes').rstrip('/') + '/'
+kraken2_dir = os.path.join(config['output_dir'], 'kraken2', config['db_name']).rstrip('/') + '/'
+bracken_dir = os.path.join(config['output_dir'], 'bracken', config['db_name']).rstrip('/') + '/'
+humann2_dir = os.path.join(config['output_dir'], 'humann2', config['db_name']).rstrip('/') + '/'
 
 
 log_dir = os.path.join(config['output_dir'], 'logs/')

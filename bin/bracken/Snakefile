@@ -5,8 +5,8 @@ rule bracken_build:
     input:
         kraken2_db = kraken2_dir + 'hash.k2d'
     output:
-        kraken2_dir + 'database{read_len}mers.kraken',
-        kraken2_dir + 'database{read_len}mers.kmer_distrib'
+        os.path.join(kraken2_dir, 'database{read_len}mers.kraken'),
+        os.path.join(kraken2_dir, 'database{read_len}mers.kmer_distrib')
     params:
         kmer = config['params']['bracken_build_kmer'],
         exe = config['pipeline']['script_folder'] + 'bracken-build.py',

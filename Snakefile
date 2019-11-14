@@ -70,15 +70,15 @@ def all_which_input(wildcards):
             x = expand(kraken2_dir + 'added/{sample}.done',
                        sample = config['samples_unique'])
             input_files += x	    
-        input_files.append(kraken2_dir + 'hash.k2d')
-        input_files.append(kraken2_dir + 'opts.k2d')
-        input_files.append(kraken2_dir + 'taxo.k2d')
-        input_files.append(kraken2_dir + 'seqid2taxid.map')
+        input_files.append(os.path.join(kraken2_dir, 'hash.k2d'))
+        input_files.append(os.path.join(kraken2_dir, 'opts.k2d'))
+        input_files.append(os.path.join(kraken2_dir, 'taxo.k2d'))
+        input_files.append(os.path.join(kraken2_dir, 'seqid2taxid.map'))
 
     # bracken
     if (not config['databases']['kraken2'].startswith('Skip') and
         not config['databases']['bracken'].startswith('Skip')):
-    	x = expand(kraken2_dir + 'database{read_len}mers.kraken',
+    	x = expand(os.path.join(kraken2_dir, 'database{read_len}mers.kraken'),
 	           read_len = config['params']['bracken_build_read_lens'])
         input_files += x
 
@@ -86,16 +86,24 @@ def all_which_input(wildcards):
     if not config['databases']['humann2_bowtie2'].startswith('Skip') and \
        not config['databases']['humann2_diamond'].startswith('Skip'):
         if config['keep_intermediate'] == True:
-            x = expand(humann2_dir + 'prodigal/{sample}/annot.fna.gz',
-                       sample = config['samples_unique'])
+            if config['use_ancient'] == True:                
+                x = expand(ancient(annot_dir + 'prodigal/{sample}/annot.fna.gz'),
+                           sample = config['samples_unique'])
+            else:			   
+                x = expand(annot_dir + 'prodigal/{sample}/annot.fna.gz',
+                           sample = config['samples_unique'])
             input_files += x
-            x = expand(humann2_dir + 'prodigal/{sample}/annot.faa.gz',
-                       sample = config['samples_unique'])
+            if config['use_ancient'] == True:                	    
+                x = expand(ancient(annot_dir + 'prodigal/{sample}/annot.faa.gz'),
+                           sample = config['samples_unique'])
+            else:
+                x = expand(annot_dir + 'prodigal/{sample}/annot.faa.gz',
+                           sample = config['samples_unique'])
             input_files += x
     if not config['databases']['humann2_bowtie2'].startswith('Skip'):
-        input_files.append(humann2_dir + 'bowtie2_build.done')
+        input_files.append(os.path.join(humann2_dir, 'bowtie2_build.done'))
     if not config['databases']['humann2_diamond'].startswith('Skip'):	
-        input_files.append(humann2_dir + 'all_genes_annot.dmnd')
+        input_files.append(os.path.join(humann2_dir,'all_genes_annot.dmnd'))
     
     # ret
     return input_files

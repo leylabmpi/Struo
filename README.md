@@ -196,7 +196,7 @@ Set the database paths in humann2, kraken2, etc. to the new, custom database fil
   * nucleotide
     * `all_genes_annot.fna.gz`
   * amino acid
-    * `all_genes.dmnd`
+    * `all_genes_annot.dmnd`
 * kraken2
   * `database*mers.kraken`
   
@@ -209,22 +209,19 @@ and so those genomes don't have to be reprocessed. Only new genomes will
 be processed, and then the database(s) will be re-created with old + new
 genomes.
 
-First, add new genomes to the input table.
+To create a database with more genomes:
 
-Then, delete the following files (if they exist):
+* Add new genomes to the input table.
+* **If** you want to over-write your old databases:
+  * DO NOT change the `db_name:` parameter in the config.yaml file
+* **OR if** you want to create new database:
+  * Change the `db_name:` parameter in the config.yaml file
+* Re-run the snakemake pipeline.
+  * Snakemake should skip the genomes that have already been processed.
+  * Use `--dryrun` to see what snakemake is going to do before actually running the pipeline.
+  * You may need to set `use_ancient: True` in order to have snakemake skip the diamond mapping for humann2
+    * This is needed if the timestamps on the genome gene files have been (accidently) modified since the last run.
 
-* humann2 database
-  * all_genes_annot.dmnd
-* kraken database
-  * hash.k2d
-  * taxo.k2d
-* bracken database
-  * database100mers.kraken
-  * database150mers.kraken
-
-Finally, re-run the snakemake pipeline. Snakemake should skip the
-genomes that have already been processed. Use `--dryrun` to see what
-snakemake is going to do before actually running the pipeline.
 
 ### Adding existing gene sequences to humann2 databases
 

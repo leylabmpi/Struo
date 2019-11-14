@@ -1,3 +1,5 @@
+[![Travis-CI Build Status](https://travis-ci.org/leylabmpi/Struo.svg?branch=master)](https://travis-ci.org/leylabmpi/Struo)
+
 Struo
 =====
 
@@ -6,7 +8,7 @@ Struo
 > "Struo" --> from the Latin: “I build” or “I gather”
 
 
-* Version: 0.1.5
+* Version: 0.1.6
 * Authors:
   * Nick Youngblut <nyoungb2@gmail.com>
   * Jacobo de la Cuesta <jacobo.delacuesta@tuebingen.mpg.de>
@@ -29,12 +31,16 @@ bioRxiv. https://doi.org/10.1101/774372
 Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mpg.de/ebio/projects/struo/)
 
 **GTDB releases available:**
-* Release 86  (14.03.2019)
+* Release 86 (14.03.2019)
+  * Number of genomes included: 21,276
+  * NCBI taxonomy/taxIDs used
 
 **GTDB releases in progress:**
 * Release 89 (30.08.2019)
-
-
+  * Number of genomes included: 23,361
+  * GTDB taxonomy/taxIDs used
+    * taxIDs assigned with [gtdb_to_taxdump](https://github.com/nick-youngblut/gtdb_to_taxdump)
+  
 # Tutorial
 
 For a step-by-step example of how to prepare and execute Struo, see the notebook in the `./tutorial/` folder
@@ -68,6 +74,7 @@ git clone git@github.com:leylabmpi/Struo.git
 * r-data.table=1.12.4
 * r-dplyr=0.8.3
 * ncbi-genome-download=0.2.10
+* newick_utils=1.6
 
 ### UniRef diamond database(s)
 
@@ -139,7 +146,10 @@ You will need to modify the `config.yaml` file (see "If using GTDB taxIDs" below
 
 * Specify the input/output paths
 * Modify parameters as needed
-* Add the path to the UniRef diamond database for HUMANn2 (see above for instructions on retrieving this file)
+  * Make sure to add the path to the UniRef diamond database for HUMANn2
+    * see above for instructions on retrieving this file
+* Modify `temp_folder:` if needed
+  * This folder is used just for read/write of temporary files
 
 #### If using GTDB taxIDs
 
@@ -186,23 +196,32 @@ Set the database paths in humann2, kraken2, etc. to the new, custom database fil
   * nucleotide
     * `all_genes_annot.fna.gz`
   * amino acid
-    * `all_genes.dmnd`
+    * `all_genes_annot.dmnd`
 * kraken2
   * `database*mers.kraken`
   
 
 ### Adding more samples (genomes) to an existing custom DB
 
-Add new genomes to the input table and delete the following files (if they exist):
+If you set `keep_intermediate: True` for your initial run, then the
+intermediate files from the computationally intensive steps are kept,
+and so those genomes don't have to be reprocessed. Only new genomes will
+be processed, and then the database(s) will be re-created with old + new
+genomes.
 
-* humann2 database
-  * all_genes_annot.dmnd
-* kraken database
-  * hash.k2d
-  * taxo.k2d
-* bracken database
-  * database100mers.kraken
-  * database150mers.kraken
+To create a database with more genomes:
+
+* Add new genomes to the input table.
+* **If** you want to over-write your old databases:
+  * DO NOT change the `db_name:` parameter in the config.yaml file
+* **OR if** you want to create new database:
+  * Change the `db_name:` parameter in the config.yaml file
+* Re-run the snakemake pipeline.
+  * Snakemake should skip the genomes that have already been processed.
+  * Use `--dryrun` to see what snakemake is going to do before actually running the pipeline.
+  * You may need to set `use_ancient: True` in order to have snakemake skip the diamond mapping for humann2
+    * This is needed if the timestamps on the genome gene files have been (accidently) modified since the last run.
+
 
 ### Adding existing gene sequences to humann2 databases
 
@@ -212,7 +231,9 @@ input genomes, then just provide the file paths to the nuc/prot fasta files
 (`humann2_nuc_seqs` and `humann2_prot_seqs` in the `config.yaml` file).
 
 All genes (from genomes & user-provided) will be clustered altogether with `vsearch`.
-See the `config.yaml` for the default clustering parameters used.
+See the `vsearch_all:` setting in the `config.yaml` for the default clustering parameters used.
+You can use `vsearch_all: Skip` to skip the clustering and instead all of the sequences
+will just be combined without removing redundancies.
 
 
 # Utilities
@@ -240,6 +261,15 @@ for phylogenetic analyses of metagenomes (e.g., Faith's PD or Unifrac).
 
 Prune >=1 phylogeny to just certain taxa. If >1 phylogeny provided,
 then the phylogenies are merged.
+
+## `gtdb_to_taxdump`
+
+This is a [separate repo](https://github.com/nick-youngblut/gtdb_to_taxdump).
+
+This is useful for creating an NCBI taxdump (names.dmp and nodes.dmp)
+from the GTDB taxonomy. Note that the taxIDs are arbitrary and don't
+match anything in the NCBI! 
+
 
 
 

@@ -1,6 +1,6 @@
 #-- I/O --#
 # file listing samples and associated data
-samples_file: tests/samples/samples_n10.txt
+samples_file: tests/samples/samples_n5.txt
 
 ## column names in samples table
 samples_col: 'ncbi_organism_name'
@@ -9,7 +9,7 @@ taxID_col: 'ncbi_species_taxid'
 taxonomy_col: 'ncbi_taxonomy'   
 
 # output location
-output_dir: tests/output_n10/
+output_dir: tests/output_n5/
 
 #-- databases to create --#
 # Replace "Create" with "Skip" to skip creation of any of these
@@ -17,8 +17,8 @@ output_dir: tests/output_n10/
 databases:
   kraken2: Create
   bracken: Create
-  humann2_bowtie2: Create
-  humann2_diamond: Create
+  humann2_bowtie2: Skip
+  humann2_diamond: Skip
 
 #-- keep intermediate files required for re-creating DBs (eg., w/ more genomes) --#
 # If "True", the intermediate files are saved to `output_dir`
@@ -38,11 +38,11 @@ params:
     - 100
     - 150
   prodigal: ""
-  diamond_db: uniref50_annotated.1.1.dmnd
+  diamond_db: uniref50.ec_filtered.1.1.dmnd
   diamond_db_to_mem: True
   diamond: --evalue 1e-3 --sensitive --max-target-seqs 20 --block-size 3 --index-chunks 2
   vsearch_per_genome: --id 0.97 --strand both --qmask none --fasta_width 0
-  vsearch_all: --id 1.0 --strand both --qmask none --fasta_width 0
+  vsearch_all: Skip #--id 1.0 --strand both --qmask none --fasta_width 0
 
 #-- If adding genes to humann2 database --#
 # If you have nucleotid and/or protein gene sequences formatted for humann2,

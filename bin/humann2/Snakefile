@@ -302,7 +302,7 @@ rule cat_genes_prot:
                     for line in inF:
                         outF.write(line.decode('utf-8'))
 
-if config['humann2_nuc_seqs'] != 'Skip' or config['humann2_prot_seqs'] != 'Skip' and \
+if (config['humann2_nuc_seqs'] != 'Skip' or config['humann2_prot_seqs'] != 'Skip') and \
    not config['params']['vsearch_all'].startswith('Skip'):
     rule cluster_all_genes_nuc:
         """

@@ -20,10 +20,14 @@ databases:
   humann2_bowtie2: Create
   humann2_diamond: Create
 
+# output database name
+db_name: GTDB-custom
+
 #-- keep intermediate files required for re-creating DBs (eg., w/ more genomes) --#
 # If "True", the intermediate files are saved to `output_dir`
 # Else, the intermediate files are temporarily stored in `temp_folder`
 keep_intermediate: True
+use_ancient: True
 
 #-- if custom NCBI taxdump files (or just Skip) --#
 names_dmp: Skip 

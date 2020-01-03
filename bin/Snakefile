@@ -40,7 +40,12 @@ def send_email(rpt_file, email, config, pipeline='LL_pipeline', success=True):
                       'Snakemake pipeline location: {}'.format(workflow.basedir)])
     cmd = "echo '{body}' | mutt {attch1} {attch2} -s '{title}' -- {email}"
     cmd = cmd.format(body=body, attch1=rpt_atch, attch2=cfg_atch, title=title, email=email)
-    shell(cmd)
+    try:
+        shell(cmd)
+    except subprocess.CalledProcessError as e:
+        cmd = "echo '{body}' | mutt {attch2} -s '{title}' -- {email}"
+        cmd = cmd.format(body=body, attch2=cfg_atch, title=title, email=email)
+        shell(cmd)
     
     # cleanup
     os.remove(rpt_file)

@@ -11,6 +11,9 @@ taxonomy_col: 'ncbi_taxonomy'
 # output location
 output_dir: tests/output_n10/
 
+# temporary file directory (your username will be added automatically)
+tmp_dir: /ebio/abt3_scratch/
+
 #-- databases to create --#
 # Replace "Create" with "Skip" to skip creation of any of these
 # Note that braken relies on the kraken2 database
@@ -58,4 +61,3 @@ humann2_prot_seqs: Skip
 pipeline:
   snakemake_folder: ./
   script_folder: ./bin/scripts/
-  temp_folder: /tmp/global2/     # your username will be added automatically to this path

@@ -46,10 +46,8 @@ config['samples_unique'] = config['samples'][config['samples_col']].unique().tol
 ## temp_folder
 config['pipeline']['username'] = getpass.getuser()
 config['pipeline']['email'] = config['pipeline']['username'] + '@tuebingen.mpg.de'
-config['pipeline']['temp_folder'] = os.path.join(config['pipeline']['temp_folder'],
-                                                 config['pipeline']['username'])
-config['tmp_dir'] = os.path.join(config['pipeline']['temp_folder'],
-		                 'Struo_' + str(os.stat('.').st_ino) + '/')
+config['tmp_dir'] = os.path.join(config['tmp_dir'], config['pipeline']['username'])
+config['tmp_dir'] = os.path.join(config['tmp_dir'], 'Struo_' + str(os.stat('.').st_ino) + '/')
 print('\33[33mUsing temporary directory: {} \x1b[0m'.format(config['tmp_dir']))
 
 
@@ -89,15 +87,15 @@ def all_which_input(wildcards):
        not config['databases']['humann2_diamond'].startswith('Skip'):
         if config['keep_intermediate'] == True:
             if config['use_ancient'] == True:                
-                x = expand(ancient(annot_dir + 'prodigal/{sample}/annot.fna.gz'),
-                           sample = config['samples_unique'])
+                x = ancient(expand(annot_dir + 'prodigal/{sample}/annot.fna.gz',
+                                   sample = config['samples_unique']))
             else:			   
                 x = expand(annot_dir + 'prodigal/{sample}/annot.fna.gz',
                            sample = config['samples_unique'])
             input_files += x
             if config['use_ancient'] == True:                	    
-                x = expand(ancient(annot_dir + 'prodigal/{sample}/annot.faa.gz'),
-                           sample = config['samples_unique'])
+                x = ancient(expand(annot_dir + 'prodigal/{sample}/annot.faa.gz',
+                                   sample = config['samples_unique']))
             else:
                 x = expand(annot_dir + 'prodigal/{sample}/annot.faa.gz',
                            sample = config['samples_unique'])

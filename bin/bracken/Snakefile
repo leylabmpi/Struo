@@ -15,6 +15,7 @@ rule bracken_build:
         24
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
+        n = lambda wildcards, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 4
     conda:
         '../envs/kraken2.yaml'

@@ -16,6 +16,7 @@ rule prodigal:
         params = config['params']['prodigal']
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
+        n = lambda wildcards, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt * 2 * 8 + 8
     conda:
         '../envs/humann2.yaml'
@@ -50,14 +51,13 @@ rule diamond:
     params:
         params = config['params']['diamond'],
         cp_db = config['params']['diamond_db_to_mem'],
-        tmp_dir = config['tmp_dir'] + '{sample}/',
-        tmp_db = '/var/sge_tmp.$JOB_ID.0/' + os.path.split(config['params']['diamond_db'])[1]
+        tmp_dir = config['tmp_dir'] + '{sample}/'
     threads:
         8
     resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 59,
-        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3 + 1,
-	tmpfs = diamond_tmpfs_size
+        time = lambda wildcards, attempt: attempt ** 2 * 60 * 10,
+        n = lambda wildcards, threads: threads,
+        mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3 + 1
     conda:
         '../envs/humann2.yaml'
     log:
@@ -66,19 +66,9 @@ rule diamond:
         benchmark_dir + 'diamond/{sample}.txt'
     shell:
         """
-        # copying db to tmpfs
-        > {log}
-        if [ ! -z ${{JOB_ID+x}} ] && [ "{params.cp_db}" == "True" ]; then
-          DB="{params.tmp_db}"
-          TMPDIR=`dirname {params.tmp_db}`
-          echo "Copying db to tmpfs: {input.dmnd_db} ==> $DB" >> {log}
-          cp -f {input.dmnd_db} $DB 2>> {log}
-        else
-          DB="{input.dmnd_db}"
-          TMPDIR="{params.tmp_dir}"
-          mkdir -p $TMPDIR 2>> {log}
-          echo "Not copying db to tmpfs" >> {log}
-        fi
+        DB="{input.dmnd_db}"
+        TMPDIR="{params.tmp_dir}"
+        mkdir -p $TMPDIR 2>> {log}
 
         # diamond run
         diamond blastp {params.params} \
@@ -201,6 +191,7 @@ rule cluster_genes_nuc:
         8
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
+        n = lambda wildcards, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt * 2
     conda:
         '../envs/humann2.yaml'
@@ -240,8 +231,8 @@ def cat_genes_nuc_input(wildcards):
     """If user-provide sequences, adding them to the input file list
     """
     if config['use_ancient'] == True:
-        x = expand(ancient(annot_dir + 'nuc_filtered/{sample}_annot_reps.fna.gz'),
-                   sample = config['samples_unique'])
+        x = ancient(expand(annot_dir + 'nuc_filtered/{sample}_annot_reps.fna.gz',
+                           sample = config['samples_unique']))
     else:
         x = expand(annot_dir + 'nuc_filtered/{sample}_annot_reps.fna.gz',
                    sample = config['samples_unique'])
@@ -273,8 +264,8 @@ localrules: cat_genes_prot
 
 def cat_genes_prot_input(wcs):
     if config['use_ancient'] == True:
-        x = expand(ancient(annot_dir + 'prot_filtered/{sample}_annot_reps.faa.gz'),
-                   sample = config['samples_unique'])
+        x = ancient(expand(annot_dir + 'prot_filtered/{sample}_annot_reps.faa.gz',
+                    sample = config['samples_unique']))
     else:
         x = expand(annot_dir + 'prot_filtered/{sample}_annot_reps.faa.gz',
                    sample = config['samples_unique'])
@@ -323,6 +314,7 @@ if (config['humann2_nuc_seqs'] != 'Skip' or config['humann2_prot_seqs'] != 'Skip
             12
         resources:
             time = lambda wildcards, attempt: attempt ** 2 * 59,
+            n = lambda wildcards, threads: threads,
             mem_gb_pt = lambda wildcards, attempt: attempt * 2 ** 2
         conda:
             '../envs/humann2.yaml'
@@ -358,6 +350,7 @@ else:
             8
         resources:
             time = lambda wildcards, attempt: attempt ** 2 * 59,
+            n = lambda wildcards, threads: threads,
             mem_gb_pt = lambda wildcards, attempt: attempt * 2 ** 2
         conda:
             '../envs/humann2.yaml'
@@ -387,6 +380,7 @@ rule humann2_bowtie2_build:
         24
     resources:
         time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
+        n = lambda wildcards, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3 + 6
     log:
         log_dir + 'humann2_bowtie2_build/all.log'
@@ -421,6 +415,7 @@ rule humann2_diamond_makedb:
         '../envs/humann2.yaml'
     resources:
         time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
+        n = lambda wildcards, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 3 * 12
     log:
         log_dir + 'humann2_diamond_makedb/all.log'

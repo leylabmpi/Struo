@@ -8,7 +8,7 @@ Struo
 > "Struo" --> from the Latin: “I build” or “I gather”
 
 
-* Version: 0.1.6
+* Version: 0.1.7
 * Authors:
   * Nick Youngblut <nyoungb2@gmail.com>
   * Jacobo de la Cuesta <jacobo.delacuesta@tuebingen.mpg.de>
@@ -176,8 +176,9 @@ nodes_dmp: /YOUR/PATH/TO/nodes.dmp
 If SGE, then you can use the `snakemake_sge.sh` script. You can create a similar bash script
 for other cluster architectures. See the following resources for help:
 
+* [Ley Lab snakemake profiles](https://github.com/leylabmpi/snakemake_profiles)
 * [Snakemake docs on cluster config](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html)
-* [Snakemake profiles](https://github.com/Snakemake-Profiles)
+* [Official snakemake profiles](https://github.com/Snakemake-Profiles)
 
 ### General info on using `snakemake`
 
@@ -272,4 +273,8 @@ match anything in the NCBI!
 
 
 
+# TODO
 
+* Create a diamond DB using `diamond >=0.9` so that users can run humann2 with
+the most up-to-date version of diamond
+  * Note this will require creating an updated UniRef50 db

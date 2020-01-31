@@ -15,20 +15,29 @@ matrix:
 
 python:
   - "3.6"
-
-before_install:
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh							 
-  - ./miniconda.sh -b
-  - export PATH=$HOME/miniconda3/bin:$PATH
-  - conda update --yes conda
+  
+install:
+  # miniconda install
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
+  # miniconda setup
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -y -q conda
   - conda config --add channels defaults
   - conda config --add channels conda-forge
   - conda config --add channels bioconda
-  
-install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION snakemake ncbi-genome-download newick_utils r-base r-argparse r-curl r-data.table r-dplyr
+  - conda info -a
+  # conda env setup
+  - conda create -n struo --yes python=$TRAVIS_PYTHON_VERSION snakemake ncbi-genome-download newick_utils r-base r-argparse r-curl r-data.table r-dplyr
+  - conda activate struo
   - conda list
+  # struo setup
   - wget http://ftp.tue.mpg.de/ebio/projects/struo/misc/uniref50.ec_filtered.1.1.dmnd
   - wget -q -O - https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_metadata_r89.tsv | head -n 3 > metadata_n2.tsv
   - tail -n +2 metadata_n5.tsv | cut -f 1 > accessions.tsv

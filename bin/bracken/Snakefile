@@ -14,7 +14,7 @@ rule bracken_build:
     threads:
         24
     resources:
-        time = lambda wildcards, attempt: attempt ** 2 * 59,
+        time = lambda wildcards, attempt: attempt ** 2 * 60 * 8,
         n = lambda wildcards, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 4
     conda:

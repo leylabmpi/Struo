@@ -2,9 +2,11 @@
 from __future__ import print_function
 import os
 import sys
+import re
 import glob
 import socket
 import getpass
+import subprocess
 import pandas as pd
 
 # setup
@@ -49,7 +51,6 @@ config['pipeline']['email'] = config['pipeline']['username'] + '@tuebingen.mpg.d
 config['tmp_dir'] = os.path.join(config['tmp_dir'], config['pipeline']['username'])
 config['tmp_dir'] = os.path.join(config['tmp_dir'], 'Struo_' + str(os.stat('.').st_ino) + '/')
 print('\33[33mUsing temporary directory: {} \x1b[0m'.format(config['tmp_dir']))
-
 
 ## including modular snakefiles
 snake_dir = config['pipeline']['snakemake_folder']

@@ -21,10 +21,10 @@ Struo
 
 # Citation
 
-de la Cuesta-Zuluaga, Jacobo, Ruth E. Ley, and Nicholas D. Youngblut. 2019.
-“Struo: A Pipeline for Building Custom Databases for Common Metagenome Profilers.”
-bioRxiv. https://doi.org/10.1101/774372
-
+Cuesta-Zuluaga, Jacobo de la, Ruth E. Ley, and Nicholas D. Youngblut. 2019.
+"Struo: A Pipeline for Building Custom Databases for Common Metagenome Profilers."
+Bioinformatics , November.
+[https://doi.org/10.1093/bioinformatics/btz899](https://doi.org/10.1093/bioinformatics/btz899)
 
 # Pre-built custom databases
 

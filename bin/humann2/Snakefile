@@ -30,15 +30,8 @@ rule prodigal:
           prodigal {params.params} \
           -o {output.gbk} -d {output.fna} -a {output.faa} \
           2> {log} 1>&2
-        """
-
-def diamond_tmpfs_size(wildcards, attempt):
-    """Estimating the /tmp/ dir size required to hold the DB
-    """
-    db_size = os.stat(config['params']['diamond_db']).st_size / 1e9
-    db_size = round(db_size + 1.499, 0) + attempt ** 2 + 5
-    return int(db_size)
-
+        """    
+        
 rule diamond:
     """
     Annotating genes via diamond search of UniRef db

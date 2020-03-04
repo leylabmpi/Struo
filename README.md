@@ -201,6 +201,29 @@ Set the database paths in humann2, kraken2, etc. to the new, custom database fil
 * kraken2
   * `database*mers.kraken`
   
+### Example of a humann2 run
+
+Run humann2 with custom databases created by Struo. Change that PATHs as necessary. 
+
+```
+STRUO_OUT_DIR=./struo_output/
+NUC_DB=$STRUO_OUT_DIR"/all_genes_annot.fna.gz"
+PROT_DB=$STRUO_OUT_DIR"/all_genes_annot.dmnd"
+MTPHLN_BT2_DB=`dirname ./metaphlan2_db/mpa_v20_m200/mpa_v20_m200.1.bt2`
+MTPHLN_PKL_DB=/ebio/abt3_projects/databases_no-backup/metaphlan2/mpa_v20_m200/mpa_v20_m200.pkl
+
+humann2 --gap-fill on --bypass-nucleotide-index  \
+  --nucleotide-database $NUC_DB  \
+  --protein-database $PROT_DB \
+  --metaphlan-options "Skip --mpa_pkl $MTPHLN_PKL_DB --bowtie2db $MTPHLN_BT2_DB" \
+  --diamond-args "--sensitive" \
+  --tmp-dir /dev/shm/humann2_temp/ \
+  --threads 12 \
+  --input-format fastq  \
+  --output-basename SRS018656 \
+  --input SRS018656_R1.fq
+```
+  
 
 ### Adding more samples (genomes) to an existing custom DB
 

@@ -216,7 +216,6 @@ humann2 --gap-fill on --bypass-nucleotide-index  \
   --nucleotide-database $NUC_DB  \
   --protein-database $PROT_DB \
   --metaphlan-options "Skip --mpa_pkl $MTPHLN_PKL_DB --bowtie2db $MTPHLN_BT2_DB" \
-  --diamond-args "--sensitive" \
   --tmp-dir /dev/shm/humann2_temp/ \
   --threads 12 \
   --input-format fastq  \

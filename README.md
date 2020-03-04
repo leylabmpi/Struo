@@ -207,8 +207,8 @@ Run humann2 with custom databases created by Struo. Change that PATHs as necessa
 
 ```
 STRUO_OUT_DIR=./struo_output/
-NUC_DB=$STRUO_OUT_DIR"/all_genes_annot.fna.gz"
-PROT_DB=$STRUO_OUT_DIR"/all_genes_annot.dmnd"
+NUC_DB=`dirname $STRUO_OUT_DIR"/all_genes_annot.fna.gz"`
+PROT_DB=`dirname $STRUO_OUT_DIR"/all_genes_annot.dmnd"`
 MTPHLN_BT2_DB=`dirname ./metaphlan2_db/mpa_v20_m200/mpa_v20_m200.1.bt2`
 MTPHLN_PKL_DB=/ebio/abt3_projects/databases_no-backup/metaphlan2/mpa_v20_m200/mpa_v20_m200.pkl
 

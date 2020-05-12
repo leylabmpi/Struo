@@ -24,7 +24,6 @@ jobs:
     - name: conda env create
       shell: bash -l {0}
       run: |
-        pwd
         conda info -a
         conda install python=${{ matrix.python-version }} snakemake ncbi-genome-download newick_utils r-base r-argparse r-curl r-data.table r-dplyr
     - uses: actions/checkout@v2	
@@ -33,5 +32,5 @@ jobs:
       run: |
         ./util_scripts/GTDB_metadata_filter.R https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_metadata_r89.tsv | head -n 100
         ./util_scripts/genome_download.R --procs 2 tests/metadata_n3.tsv
-        ./util_scripts/tree_prune.py accessions.tsv https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_r89.tree
+        ./util_scripts/tree_prune.py tests/accession.txt https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_r89.tree
         snakemake --jobs 2 --use-conda --configfile tests/config_default.yaml --dryrun

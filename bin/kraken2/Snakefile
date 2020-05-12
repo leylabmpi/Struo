@@ -125,7 +125,7 @@ rule kraken2_build:
         24
     resources:
         time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
-        n = lambda wildcards, threads: threads,
+        n = lambda wildcards, attempt, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt * 2 + 3
     conda:
         '../envs/kraken2.yaml'

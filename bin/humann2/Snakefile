@@ -16,7 +16,7 @@ rule prodigal:
         params = config['params']['prodigal']
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
-        n = lambda wildcards, threads: threads,
+        n = lambda wildcards, attempt, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt * 2 * 8 + 8
     conda:
         '../envs/humann2.yaml'
@@ -49,7 +49,7 @@ rule diamond:
         8
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 60 * 10,
-        n = lambda wildcards, threads: threads,
+        n = lambda wildcards, attempt, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3 + 1
     conda:
         '../envs/humann2.yaml'
@@ -184,7 +184,7 @@ rule cluster_genes_nuc:
         8
     resources:
         time = lambda wildcards, attempt: attempt ** 2 * 59,
-        n = lambda wildcards, threads: threads,
+        n = lambda wildcards, attempt, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt * 2
     conda:
         '../envs/humann2.yaml'
@@ -307,7 +307,7 @@ if (config['humann2_nuc_seqs'] != 'Skip' or config['humann2_prot_seqs'] != 'Skip
             12
         resources:
             time = lambda wildcards, attempt: attempt ** 2 * 59,
-            n = lambda wildcards, threads: threads,
+            n = lambda wildcards, attempt, threads: threads,
             mem_gb_pt = lambda wildcards, attempt: attempt * 2 ** 2
         conda:
             '../envs/humann2.yaml'
@@ -343,7 +343,7 @@ else:
             8
         resources:
             time = lambda wildcards, attempt: attempt ** 2 * 59,
-            n = lambda wildcards, threads: threads,
+            n = lambda wildcards, attempt, threads: threads,
             mem_gb_pt = lambda wildcards, attempt: attempt * 2 ** 2
         conda:
             '../envs/humann2.yaml'
@@ -373,7 +373,7 @@ rule humann2_bowtie2_build:
         24
     resources:
         time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
-        n = lambda wildcards, threads: threads,
+        n = lambda wildcards, attempt, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 2 * 3 + 6
     log:
         log_dir + 'humann2_bowtie2_build/all.log'
@@ -408,7 +408,7 @@ rule humann2_diamond_makedb:
         '../envs/humann2.yaml'
     resources:
         time = lambda wildcards, attempt: attempt * 2 * 60 * 24,
-        n = lambda wildcards, threads: threads,
+        n = lambda wildcards, attempt, threads: threads,
         mem_gb_pt = lambda wildcards, attempt: attempt ** 3 * 12
     log:
         log_dir + 'humann2_diamond_makedb/all.log'

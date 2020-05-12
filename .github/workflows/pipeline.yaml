@@ -32,6 +32,6 @@ jobs:
       shell: bash -l {0}
       run: |
         ./util_scripts/GTDB_metadata_filter.R https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_metadata_r89.tsv | head -n 100
-	./util_scripts/genome_download.R --procs 2 metadata_n2.tsv
-	./util_scripts/tree_prune.py accessions.tsv https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_r89.tree
-	snakemake --jobs 2 --use-conda --configfile tests/config_default.yaml --dryrun
+        ./util_scripts/genome_download.R --procs 2 metadata_n2.tsv
+        ./util_scripts/tree_prune.py accessions.tsv https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_r89.tree
+        snakemake --jobs 2 --use-conda --configfile tests/config_default.yaml --dryrun

@@ -1,4 +1,4 @@
-[![Travis-CI Build Status](https://travis-ci.org/leylabmpi/Struo.svg?branch=master)](https://travis-ci.org/leylabmpi/Struo)
+![Struo](https://github.com/leylabmpi/Struo/workflows/Struo/badge.svg)
 
 Struo
 =====

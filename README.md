@@ -34,8 +34,6 @@ Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mp
 * Release 86 (14.03.2019)
   * Number of genomes included: 21,276
   * NCBI taxonomy/taxIDs used
-
-**GTDB releases in progress:**
 * Release 89 (30.08.2019)
   * Number of genomes included: 23,361
   * GTDB taxonomy/taxIDs used

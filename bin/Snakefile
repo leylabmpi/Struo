@@ -12,45 +12,57 @@ def write_config(out_file):
         json.dump(config_tmp, outF, indent=4)
 
 def file_atch(file_path, file_type):
-   if os.path.isfile(file_path) and os.stat(file_path).st_size > 0:
-       attach = '-a {}'.format(file_path)   
-       file_path = os.path.split(file_path)[1]
-       msg = 'See attached {} file: {}'.format(file_type, file_path)
-   else:
-       attach = ''
-       file_path = os.path.split(file_path)[1]
-       msg = 'WARNING: could not attach {}: {}'.format(file_type, file_path)
-   return attach,msg
-       
-def send_email(rpt_file, email, config, pipeline='LL_pipeline', success=True):
-    if find_executable('mutt') is None:
-        print('WARNING: `mutt` not found. Not sending an email')
-	return 0
+    """ Attachments for email
+    """
+    if os.path.isfile(file_path) and os.stat(file_path).st_size > 0:
+        attach = '-a {}'.format(file_path)   
+        file_path = os.path.split(file_path)[1]
+        msg = 'See attached {} file: {}'.format(file_type, file_path)
+    else:
+        attach = ''
+        file_path = os.path.split(file_path)[1]
+        msg = 'WARNING: could not attach {}: {}'.format(file_type, file_path)
+    return attach,msg
 
-    # json of config
-    config_json = os.path.join(config['tmp_dir'], 'job_config.json')
-    write_config(config_json)
-    
-    # email
-    title = '{} finished successfully' if success is True else '{} => error occurred'
-    title = title.format(pipeline)
+def email_with_atch(email, title, rpt_file, config_json):
+    """ Using mutt to send email with attachments
+    """
     rpt_atch,rpt_msg = file_atch(rpt_file, 'job report')
-    cfg_atch,cfg_msg = file_atch(config_json, 'pipeline config')    
+    cfg_atch,cfg_msg = file_atch(config_json, 'pipeline config')
     body = '\n'.join([rpt_msg, cfg_msg,
                       'Snakemake pipeline location: {}'.format(workflow.basedir)])
     cmd = "echo '{body}' | mutt {attch1} {attch2} -s '{title}' -- {email}"
     cmd = cmd.format(body=body, attch1=rpt_atch, attch2=cfg_atch, title=title, email=email)
+    shell(cmd)
+
+def email_no_atch(email, title):
+    """ Using mail(x) to send email without attachments
+    """
+    body = 'WARNING: the config & report files could not be attached to this email.'
+    body += ' Check that "mutt" is installed and properly working.'
+    cmd = "echo '{body}' | {exe} -s '{title}' {email}"
     try:
-        shell(cmd)
-    except subprocess.CalledProcessError as e:
-        cmd = "echo '{body}' | mutt {attch2} -s '{title}' -- {email}"
-        cmd = cmd.format(body=body, attch2=cfg_atch, title=title, email=email)
-        shell(cmd)
-    
+        shell(cmd.format(body=body, exe='mailx', title=title, email=email))
+    except subprocess.CalledProcessError:
+        shell(cmd.format(body=body, exe='mail', title=title, email=email))
+       
+def send_email(rpt_file, email, config, pipeline='LL_pipeline', success=True):
+    # json of config
+    config_json = os.path.join(config['tmp_dir'], 'job_config.json')
+    write_config(config_json)    
+    # email
+    title = '{} finished successfully' if success is True else '{} => error occurred'
+    title = title.format(pipeline)
+    try:
+        ## with attachemnts
+        email_with_atch(email, title, rpt_file, config_json)
+    except subprocess.CalledProcessError:
+        ## without attachments
+        email_no_atch(email, title)    
     # cleanup
     os.remove(rpt_file)
     os.remove(config_json)
-
+    
 def mk_cmd(success=True):
     msg = 'complete' if success is True else 'error'
     print('Pipeline {}! Creating report...'.format(msg))

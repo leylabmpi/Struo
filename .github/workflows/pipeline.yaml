@@ -29,10 +29,12 @@ jobs:
       shell: bash -l {0}
       run: |
         mamba install python=${{ matrix.python-version }} snakemake ncbi-genome-download newick_utils r-base r-argparse r-curl r-data.table r-dplyr
+        ls -thlc
     - name: Test util scripts
       shell: bash -l {0}
       working-directory: ./util_scripts/
       run: |
+        ls -thlc
         ./GTDB_metadata_filter.R https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_metadata_r89.tsv | head -n 100
         ./genome_download.R --procs 2 tests/metadata_n3.tsv
         ./tree_prune.py tests/accession.txt https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_r89.tree
@@ -40,4 +42,5 @@ jobs:
       shell: bash -l {0}
       working-directory: .
       run: |
+      	ls -thlc
         snakemake --jobs 2 --use-conda --configfile tests/config_default.yaml -Fqn

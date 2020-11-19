@@ -25,7 +25,9 @@ jobs:
         channel-priority: true	
     - name: conda info
       shell: bash -l {0}
-      run: conda info
+      run: |
+        conda info
+        conda list
     - name: conda install
       shell: bash -l {0}
       run: |
@@ -33,11 +35,10 @@ jobs:
         conda list
     - name: Test util scripts
       shell: bash -l {0}
-      working-directory: ./util_scripts/
       run: |
-        ./GTDB_metadata_filter.R https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_metadata_r89.tsv | head -n 100
-        ./genome_download.R --procs 2 tests/metadata_n3.tsv
-        ./tree_prune.py tests/accession.txt https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_r89.tree
+        ./util_scripts/GTDB_metadata_filter.R https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_metadata_r89.tsv | head -n 100
+        ./util_scripts/genome_download.R --procs 2 tests/metadata_n3.tsv
+        ./util_scripts/tree_prune.py tests/accession.txt https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/ar122_r89.tree
     - name: Test snakemake
       shell: bash -l {0}
       run: snakemake --jobs 2 --use-conda --configfile tests/config_default.yaml -Fqn

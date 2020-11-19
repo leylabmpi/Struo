@@ -36,9 +36,26 @@ Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mp
   * NCBI taxonomy/taxIDs used
 * Release 89 (30.08.2019)
   * Number of genomes included: 23,361
-  * GTDB taxonomy/taxIDs used
+  * GTDB taxdump
     * taxIDs assigned with [gtdb_to_taxdump](https://github.com/nick-youngblut/gtdb_to_taxdump)
-  
+  * Genome phylogeny
+    * GTDB `ar122_r89.tree` & `bac120_r89.tree` grafted together
+  * Genome phenotypes
+    * Inferred with [py3-implementation of Traitar](https://github.com/nick-youngblut/traitar3)
+* Release 95 (13.07.2020)
+  * Number of genomes included: 30,989
+  * GTDB taxdump
+    * taxIDs assigned with [gtdb_to_taxdump](https://github.com/nick-youngblut/gtdb_to_taxdump)
+  * Genome phylogeny
+    * GTDB `ar122_r95.tree` & `bac120_r95.tree` grafted together
+
+# Notes/warnings
+
+* The taxdump taxIDs are NOT stable! Do not mix and match among GTDB releases!
+* You can use `ncbi-gtdb_map.py` from the
+  [gtdb_to_taxdump](https://github.com/nick-youngblut/gtdb_to_taxdump) repo
+  to convert between NCBI and GTDB taxonomies
+
 # Tutorial
 
 For a step-by-step example of how to prepare and execute Struo, see the notebook in the `./tutorial/` folder

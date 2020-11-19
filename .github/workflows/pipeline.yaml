@@ -42,5 +42,5 @@ jobs:
       shell: bash -l {0}
       working-directory: .
       run: |
-      	ls -thlc
+        ls -thlc
         snakemake --jobs 2 --use-conda --configfile tests/config_default.yaml -Fqn

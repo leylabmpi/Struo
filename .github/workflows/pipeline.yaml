@@ -29,7 +29,8 @@ jobs:
     - name: conda install
       shell: bash -l {0}
       run: |
-        mamba install python=${{ matrix.python-version }} snakemake ncbi-genome-download newick_utils r-base r-argparse r-curl r-data.table r-dplyr
+        mamba install python=${{ matrix.python-version }} libiconv snakemake ncbi-genome-download newick_utils r-base r-argparse r-curl r-data.table r-dplyr
+        conda list
     - name: Test util scripts
       shell: bash -l {0}
       working-directory: ./util_scripts/

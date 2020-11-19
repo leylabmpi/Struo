@@ -11,22 +11,24 @@ jobs:
     name: build (${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.7, 3.8]
     steps:
-    - uses: goanpeca/setup-miniconda@v1
+    - uses: conda-incubator/setup-miniconda@v2
       with:
-        miniconda-version: 'latest'
         auto-update-conda: true
-        python-version: ${{ matrix.python-version }}
-        channels: conda-forge,bioconda
-        activate-environment: struo
-    - name: conda env create
+	python-version: ${{ matrix.python-version }}
+	mamba-version: "*"
+	channels: conda-forge,bioconda,defauts
+	channel-priority: true	
+    - name: conda info
+      shell: bash -l {0}
+      run: conda info
+    - name: conda install
       shell: bash -l {0}
       run: |
-        conda info -a
-        conda install python=${{ matrix.python-version }} snakemake ncbi-genome-download newick_utils r-base r-argparse r-curl r-data.table r-dplyr
-    - uses: actions/checkout@v2	
+        mamba install python=${{ matrix.python-version }} snakemake ncbi-genome-download newick_utils r-base r-argparse r-curl r-data.table r-dplyr
     - name: Test scripts
       shell: bash -l {0}
       run: |

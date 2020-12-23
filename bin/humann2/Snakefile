@@ -138,7 +138,8 @@ else:
             benchmark_dir + 'annotate_genes/{sample}.txt'
         shell:
             """
-            {params.exe} --prefix {params.prefix} \
+            OUTDIR=`dirname {output.fna}`
+            {params.exe} --outdir $OUTDIR \
                --columns qseqid,sseqid,pident,length,qstart,qend,qlen,sstart,send,slen,evalue \
                {input.hits} {input.fna} {input.faa} "{params.tax}" {params.taxID} \
                2> {log} 1>&2

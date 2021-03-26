@@ -26,6 +26,11 @@ Cuesta-Zuluaga, Jacobo de la, Ruth E. Ley, and Nicholas D. Youngblut. 2019.
 Bioinformatics , November.
 [https://doi.org/10.1093/bioinformatics/btz899](https://doi.org/10.1093/bioinformatics/btz899)
 
+# Struo2
+
+* Faster than Struo and allows for efficient database updating
+  * [Struo2 repo](https://github.com/leylabmpi/Struo2)
+
 # Pre-built custom databases
 
 Custom GTDB databases available at the [struo data ftp server](http://ftp.tue.mpg.de/ebio/projects/struo/)

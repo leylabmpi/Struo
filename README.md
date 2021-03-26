@@ -161,8 +161,12 @@ You will need to modify the `config.yaml` file (see "If using GTDB taxIDs" below
 
 * Specify the input/output paths
 * Modify parameters as needed
-  * Make sure to add the path to the UniRef diamond database for HUMANn2
+  * Make sure to add the path to the UniRef diamond database for HUMAnN2
     * see above for instructions on retrieving this file
+* The `samples_col:` column specified should contain unique values
+  * The default `ncbi_organism_name` column in the GTDB metadata does not contain unique values
+  * For the pre-built Struo databases, we merged assembly accessions with the original ncbi_organism_name
+    * eg., `GB_GCA_001784635.1_Candidatus Micrarchaeota archaeon RBG_16_49_10`
 * Modify `temp_folder:` if needed
   * This folder is used just for read/write of temporary files
 

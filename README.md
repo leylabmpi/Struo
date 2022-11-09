@@ -234,7 +234,7 @@ STRUO_OUT_DIR=./struo_output/
 NUC_DB=`dirname $STRUO_OUT_DIR"/all_genes_annot.fna.gz"`
 PROT_DB=`dirname $STRUO_OUT_DIR"/all_genes_annot.dmnd"`
 MTPHLN_BT2_DB=`dirname ./metaphlan2_db/mpa_v20_m200/mpa_v20_m200.1.bt2`
-MTPHLN_PKL_DB=/ebio/abt3_projects/databases_no-backup/metaphlan2/mpa_v20_m200/mpa_v20_m200.pkl
+MTPHLN_PKL_DB=/ebio/abt3_projects2/databases_no-backup/metaphlan2/mpa_v20_m200/mpa_v20_m200.pkl
 
 humann2 --gap-fill on --bypass-nucleotide-index  \
   --nucleotide-database $NUC_DB  \

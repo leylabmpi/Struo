@@ -45,7 +45,7 @@ params:
     - 100
     - 150
   prodigal: ""
-  diamond_db: /ebio/abt3_projects/databases_no-backup/humann2/uniref50/uniref50_annotated.1.1.dmnd
+  diamond_db: /ebio/abt3_projects2/databases_no-backup/humann2/uniref50/uniref50_annotated.1.1.dmnd
   diamond_db_to_mem: True
   diamond: --evalue 1e-3 --sensitive --max-target-seqs 20 --block-size 3 --index-chunks 2
   vsearch_per_genome: --id 0.97 --strand both --qmask none --fasta_width 0
